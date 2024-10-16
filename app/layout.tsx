@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
+import Header from "./components/Header";
 
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
@@ -27,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${accentFont.variable} ${geistMono.variable}`}>
+        <Header />
         {children}
       </body>
     </html>

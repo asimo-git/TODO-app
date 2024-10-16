@@ -1,0 +1,9 @@
+@import "bootstrap/scss/bootstrap";
+
+$btn-primary-bg: var(--light-accent);
+$btn-primary-color: var(--dark-accent);
+$btn-primary-border-color: var(--dark-accent);
+
+@import "bootstrap/scss/bootstrap-grid";
+@import "bootstrap/scss/bootstrap-reboot";
+@import "bootstrap/scss/bootstrap-utilities";
