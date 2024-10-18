@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./globals.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
+import "./globals.scss";
 import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
 
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
@@ -30,7 +31,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${accentFont.variable} ${geistMono.variable}`}>
         <Header />
-        {children}
+        <div className="d-flex flex-grow-1">
+          <Sidebar />
+          <main>{children}</main>
+        </div>
       </body>
     </html>
   );

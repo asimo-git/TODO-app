@@ -1,3 +1,10 @@
+"use client";
+import TodayPanel from "./components/TodayPanel";
+
 export default function Home() {
-  return <main></main>;
+  return (
+    <main>
+      <TodayPanel />
+    </main>
+  );
 }
