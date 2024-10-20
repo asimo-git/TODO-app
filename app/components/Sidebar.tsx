@@ -28,9 +28,9 @@ export default function Sidebar() {
                   </Nav.Link>
                   <Collapse in={open}>
                     <Nav className="flex-column ms-3">
-                      <Nav.Link href="/services/service1">task</Nav.Link>
-                      <Nav.Link href="/services/service2">heap</Nav.Link>
-                      <Nav.Link href="/services/service2">habit</Nav.Link>
+                      <Nav.Link href="/create/task">task</Nav.Link>
+                      <Nav.Link href="/create/heap">heap</Nav.Link>
+                      <Nav.Link href="/create/habit">habit</Nav.Link>
                     </Nav>
                   </Collapse>
                 </Nav.Item>

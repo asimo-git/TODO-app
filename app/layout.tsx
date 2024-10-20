@@ -33,7 +33,7 @@ export default function RootLayout({
         <Header />
         <div className="d-flex flex-grow-1">
           <Sidebar />
-          <main>{children}</main>
+          <main className="flex-grow-1">{children}</main>
         </div>
       </body>
     </html>
