@@ -3,12 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
-
-enum Entry {
-  task,
-  heap,
-  habit,
-}
+import { Entry, Priority } from "@/app/utils/constatnts";
+import { saveNewTask } from "@/app/utils/helpers";
 
 export default function NewEntryForm() {
   const pathname = usePathname();
@@ -19,14 +15,17 @@ export default function NewEntryForm() {
       : Entry[0];
 
   const [task, setTask] = useState("");
-  const [priority, setPriority] = useState("medium");
+  const [priority, setPriority] = useState(Priority[1]);
   const [date, setDate] = useState("");
   const [frequency, setFrequency] = useState("none");
   const [repetition, setRepetition] = useState("1");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log({ task, priority, date, frequency, repetition });
+    saveNewTask({
+      type: entryType,
+      data: { task, priority, date, frequency, repetition },
+    });
   };
 
   return (
@@ -53,9 +52,9 @@ export default function NewEntryForm() {
               onChange={(e) => setPriority(e.target.value)}
               required
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value={Priority[0]}>{Priority[0]}</option>
+              <option value={Priority[1]}>{Priority[1]}</option>
+              <option value={Priority[2]}>{Priority[2]}</option>
             </Form.Select>
           </Form.Group>
         </Col>
