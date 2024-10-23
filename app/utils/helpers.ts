@@ -1,10 +1,30 @@
+import { addDoc, collection } from "firebase/firestore";
+import { auth, db } from "../services/firebase";
 import { Task } from "./interfaces";
 
-export function saveNewTask({ type, data }: { type: string; data: Task }) {
-  const existingTasks = localStorage.getItem(type);
-  const tasks = existingTasks ? JSON.parse(existingTasks) : [];
+export async function saveNewTask({
+  type,
+  data,
+}: {
+  type: string;
+  data: Task;
+}) {
+  const currentUser = auth.currentUser;
 
-  tasks.push({ ...data, id: new Date().toISOString(), type });
+  if (currentUser) {
+    const { uid } = currentUser;
 
-  localStorage.setItem(type, JSON.stringify(tasks));
+    try {
+      await addDoc(collection(db, `users/${uid}/tasks`), {
+        uid: uid,
+        type,
+        ...data,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
 }
