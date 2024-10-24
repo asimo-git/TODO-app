@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Collapse, Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
+import { Entry } from "../utils/constatnts";
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
@@ -28,9 +29,15 @@ export default function Sidebar() {
                   </Nav.Link>
                   <Collapse in={open}>
                     <Nav className="flex-column ms-3">
-                      <Nav.Link href="/create/task">task</Nav.Link>
-                      <Nav.Link href="/create/heap">heap</Nav.Link>
-                      <Nav.Link href="/create/habit">habit</Nav.Link>
+                      <Nav.Link href={`/create/${Entry.task}`}>
+                        {Entry.task}
+                      </Nav.Link>
+                      <Nav.Link href={`/create/${Entry.heap}`}>
+                        {Entry.heap}
+                      </Nav.Link>
+                      <Nav.Link href={`/create/${Entry.habit}`}>
+                        {Entry.habit}
+                      </Nav.Link>
                     </Nav>
                   </Collapse>
                 </Nav.Item>

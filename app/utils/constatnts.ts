@@ -1,11 +1,11 @@
 export enum Entry {
-  task,
-  heap,
-  habit,
+  task = "task",
+  heap = "heap",
+  habit = "habit",
 }
 
 export enum Priority {
-  Low,
-  Medium,
-  High,
+  low = "Low",
+  medium = "Medium",
+  high = "High",
 }

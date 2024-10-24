@@ -1,58 +1,64 @@
 "use client";
 
-import { Container } from "react-bootstrap";
+import { Container, Spinner } from "react-bootstrap";
 import { Entry } from "../utils/constatnts";
 import { SavedTask } from "../utils/interfaces";
 import TaskCard from "../components/TaskCard";
 import { useEffect, useState } from "react";
+import { getTasksFromFireStore } from "../utils/helpers";
+import { useAuth } from "../utils/hooks";
 
 export default function TasksPool() {
-  const [tasks, setTasks] = useState<SavedTask[]>([]);
-  const [heaps, setHeaps] = useState<SavedTask[]>([]);
-  const [habits, setHabits] = useState<SavedTask[]>([]);
+  const { user, loading } = useAuth();
+  const [tasksData, setTasksData] = useState<{
+    [key in Entry]: SavedTask[];
+  }>({
+    [Entry.task]: [],
+    [Entry.heap]: [],
+    [Entry.habit]: [],
+  });
 
   useEffect(() => {
-    const loadedTasks: SavedTask[] = JSON.parse(
-      localStorage.getItem(Entry[0]) || "[]"
-    );
-    const loadedHeaps: SavedTask[] = JSON.parse(
-      localStorage.getItem(Entry[1]) || "[]"
-    );
-    const loadedHabits: SavedTask[] = JSON.parse(
-      localStorage.getItem(Entry[2]) || "[]"
-    );
+    if (user) {
+      const loadTasks = async () => {
+        const loadedTasks = await getTasksFromFireStore(user.uid);
+        if (loadedTasks) {
+          setTasksData({
+            [Entry.task]: loadedTasks[Entry.task],
+            [Entry.heap]: loadedTasks[Entry.heap],
+            [Entry.habit]: loadedTasks[Entry.habit],
+          });
+        }
+      };
+      loadTasks();
+    }
+  }, [user]);
 
-    setTasks(loadedTasks);
-    setHeaps(loadedHeaps);
-    setHabits(loadedHabits);
-  }, []);
+  const renderTaskSection = (title: string, tasks: SavedTask[]) => {
+    if (tasks.length === 0) return null;
+    return (
+      <Container>
+        <h3>{title}</h3>
+        {tasks.map((task) => (
+          <TaskCard key={task.id} data={task} />
+        ))}
+      </Container>
+    );
+  };
+
+  if (loading) {
+    return (
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    );
+  }
 
   return (
     <>
-      {tasks.length > 0 && (
-        <Container>
-          <h3>Tasks</h3>
-          {tasks.map((task) => (
-            <TaskCard key={task.id} data={task}></TaskCard>
-          ))}
-        </Container>
-      )}
-      {heaps.length > 0 && (
-        <Container>
-          <h3>Heaps</h3>
-          {heaps.map((task) => (
-            <TaskCard key={task.id} data={task}></TaskCard>
-          ))}
-        </Container>
-      )}
-      {habits.length > 0 && (
-        <Container>
-          <h3>Habits</h3>
-          {habits.map((task) => (
-            <TaskCard key={task.id} data={task}></TaskCard>
-          ))}
-        </Container>
-      )}
+      {renderTaskSection("Tasks", tasksData[Entry.task])}
+      {renderTaskSection("Heaps", tasksData[Entry.heap])}
+      {renderTaskSection("Habits", tasksData[Entry.habit])}
     </>
   );
 }

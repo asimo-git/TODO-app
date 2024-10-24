@@ -11,13 +11,13 @@ export default function NewEntryForm() {
   const pathname = usePathname();
   const lastSegment = pathname.split("/").filter(Boolean).pop();
   const entryType =
-    lastSegment === Entry[1] || lastSegment === Entry[2]
+    lastSegment === Entry.heap || lastSegment === Entry.habit
       ? lastSegment
-      : Entry[0];
+      : Entry.task;
   /////////////////////
 
   const [task, setTask] = useState("");
-  const [priority, setPriority] = useState(Priority[1]);
+  const [priority, setPriority] = useState(Priority.medium);
   const [date, setDate] = useState("");
   const [frequency, setFrequency] = useState("none");
   const [repetition, setRepetition] = useState("1");
@@ -60,12 +60,12 @@ export default function NewEntryForm() {
               <Form.Label>Priority</Form.Label>
               <Form.Select
                 value={priority}
-                onChange={(e) => setPriority(e.target.value)}
+                onChange={(e) => setPriority(e.target.value as Priority)}
                 required
               >
-                <option value={Priority[0]}>{Priority[0]}</option>
-                <option value={Priority[1]}>{Priority[1]}</option>
-                <option value={Priority[2]}>{Priority[2]}</option>
+                <option value={Priority.low}>{Priority.low}</option>
+                <option value={Priority.medium}>{Priority.medium}</option>
+                <option value={Priority.high}>{Priority.high}</option>
               </Form.Select>
             </Form.Group>
           </Col>
@@ -73,9 +73,9 @@ export default function NewEntryForm() {
           <Col>
             <Form.Group controlId="taskDate" className="mb-3">
               <Form.Label>
-                {entryType === Entry[2]
+                {entryType === Entry.habit
                   ? "Start"
-                  : entryType === Entry[1]
+                  : entryType === Entry.heap
                   ? "Deadline"
                   : "Date"}
               </Form.Label>
