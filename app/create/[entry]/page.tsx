@@ -30,11 +30,17 @@ export default function NewEntryForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (user) {
-      const data = { task, priority, date, frequency, repetition };
+      const data = {
+        task,
+        priority,
+        date,
+        frequency,
+        repetition,
+        type: entryType,
+      };
       const filteredData = JSON.parse(JSON.stringify(data));
       const isSuccess = await saveNewTask({
         uid: user?.uid,
-        type: entryType,
         data: filteredData,
       });
       setIsSuccessSaveStatus(isSuccess);
@@ -119,7 +125,6 @@ export default function NewEntryForm() {
             <Form.Control
               type="number"
               placeholder="Enter number"
-              // value={repetition}
               onChange={(e) => setRepetition(e.target.value)}
               required
             />

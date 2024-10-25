@@ -11,17 +11,21 @@ import { SavedTask } from "../utils/interfaces";
 import { Entry, Priority } from "../utils/constatnts";
 import { useContext, useState } from "react";
 import { AuthContext } from "../utils/context";
-import { deleteTask } from "../utils/helpers";
+import { deleteTask, saveNewTask, updateTask } from "../utils/helpers";
 
 export default function TaskCard({
   data,
   onDelete,
+  onUpdate,
 }: {
   data: SavedTask;
   onDelete: (id: string, type: Entry) => void;
+  onUpdate: (updatedTask: SavedTask) => void;
 }) {
   const { user } = useContext(AuthContext);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState(data);
 
   const priorityFontSize =
     data.priority === Priority.low
@@ -37,8 +41,44 @@ export default function TaskCard({
       ? "bg-success"
       : "bg-info";
 
-  const handleDeleteTask = async () => {
+  const handleUpdateTask = () => {
     setError(null);
+    setIsEditing(true);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    setError(null);
+    setIsEditing(false);
+
+    try {
+      const response = await updateTask({
+        uid: user?.uid || "",
+        updatedData: editedData,
+      });
+      if (response) {
+        onUpdate(editedData);
+      } else {
+        setError("Failed to save changes. Please try again.");
+      }
+    } catch {
+      setError("Failed to save changes. Please try again.");
+    }
+  };
+
+  const handleUndoChanges = () => {
+    setEditedData(data);
+    setIsEditing(false);
+  };
+
+  const handleDeleteTask = async () => {
     if (user) {
       const response = await deleteTask(user?.uid, data.id);
       if (response) {
@@ -49,42 +89,131 @@ export default function TaskCard({
     }
   };
 
+  const handleCompleteTask = async () => {
+    const doneTask = { ...data, completedDate: new Date() };
+    const response = await saveNewTask({
+      uid: user?.uid || "",
+      data: doneTask,
+    });
+    if (response) {
+      handleDeleteTask();
+    } else {
+      setError("Failed to complete task. Please try again.");
+    }
+  };
+
   return (
     <Card className={`${typeColor} mb-2`}>
-      <CardTitle className={`${priorityFontSize} m-3`}>{data.task}</CardTitle>
-      {data.frequency && <CardBody>Frequency: {data.frequency}</CardBody>}
-      {data.repetition && <CardBody>Repetition: {data.repetition}</CardBody>}
+      <CardTitle className={`${priorityFontSize} m-3`}>
+        {isEditing ? (
+          <input
+            type="text"
+            name="task"
+            value={editedData.task}
+            onChange={handleChange}
+            className="form-control"
+          />
+        ) : (
+          data.task
+        )}
+      </CardTitle>
+
+      <CardBody className="py-0">
+        {data.frequency && (
+          <>
+            Frequency:{" "}
+            {isEditing ? (
+              <input
+                type="text"
+                name="frequency"
+                value={editedData.frequency}
+                onChange={handleChange}
+                className="form-control d-inline w-25"
+              />
+            ) : (
+              data.frequency
+            )}
+          </>
+        )}
+
+        {data.repetition && (
+          <>
+            Repetition:{" "}
+            {isEditing ? (
+              <input
+                type="text"
+                name="repetition"
+                value={editedData.repetition}
+                onChange={handleChange}
+                className="form-control d-inline w-25"
+              />
+            ) : (
+              data.repetition
+            )}
+          </>
+        )}
+      </CardBody>
+
       <CardFooter className="d-flex justify-content-between align-items-center">
-        <span>
+        <div className="flex-grow-1">
           {data.type === Entry.task
-            ? "Data"
+            ? "Data -"
             : data.type === Entry.heap
-            ? "Deadline"
-            : "Start"}{" "}
-          - {data.date}
-        </span>
+            ? "Deadline -"
+            : "Start -"}{" "}
+          {isEditing ? (
+            <input
+              type="date"
+              name="date"
+              value={editedData.date}
+              onChange={handleChange}
+              className="form-control d-inline w-25"
+            />
+          ) : (
+            data.date
+          )}
+        </div>
+
         <ButtonGroup aria-label="Task actions">
-          <Button variant="secondary" size="sm" className="w-33">
-            &#10003;
-          </Button>
+          {isEditing ? (
+            <>
+              <Button variant="primary" size="sm" onClick={handleSaveChanges}>
+                Save
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleUndoChanges}>
+                Return
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-33"
+                onClick={handleCompleteTask}
+              >
+                &#10003;
+              </Button>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            className="w-33"
-            // onClick={handleUpdateTask}
-          >
-            &#9998;
-          </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-33"
+                onClick={handleUpdateTask}
+              >
+                &#9998;
+              </Button>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            className="w-33"
-            onClick={handleDeleteTask}
-          >
-            &#128465;
-          </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-33"
+                onClick={handleDeleteTask}
+              >
+                &#128465;
+              </Button>
+            </>
+          )}
         </ButtonGroup>
       </CardFooter>
 

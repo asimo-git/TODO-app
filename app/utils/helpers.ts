@@ -13,19 +13,19 @@ import { Entry } from "./constatnts";
 
 export async function saveNewTask({
   uid,
-  type,
   data,
 }: {
   uid: string;
-  type: string;
-  data: Task;
+  data: Task | SavedTask;
 }) {
   try {
-    await addDoc(collection(db, `users/${uid}/tasks`), {
-      type,
-      ...data,
-    });
-    console.log(data);
+    let path: string;
+    if ("completedDate" in data && data.completedDate) {
+      path = `users/${uid}/completed`;
+    } else {
+      path = `users/${uid}/tasks`;
+    }
+    await addDoc(collection(db, path), data);
     return true;
   } catch (error) {
     console.error("Error while saving task:", error);
@@ -72,16 +72,17 @@ export async function deleteTask(uid: string, taskId: string) {
 
 export async function updateTask({
   uid,
-  taskId,
   updatedData,
 }: {
   uid: string;
-  taskId: string;
-  updatedData: Partial<Task>;
+  updatedData: SavedTask;
 }) {
   try {
-    const taskRef = doc(db, `users/${uid}/tasks`, taskId);
-    await updateDoc(taskRef, updatedData);
+    console.log(updatedData);
+    const taskRef = doc(db, `users/${uid}/tasks`, updatedData.id);
+    // eslint-disable-next-line
+    const { id, type, ...fieldsToUpdate } = updatedData;
+    await updateDoc(taskRef, fieldsToUpdate);
 
     console.log("Задача успешно обновлена");
     return true;
