@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button, Col, Form, Row, Toast, ToastContainer } from "react-bootstrap";
 import { Entry, Priority } from "@/app/utils/constatnts";
 import { saveNewTask } from "@/app/utils/helpers";
+import { AuthContext } from "@/app/utils/context";
 
 export default function NewEntryForm() {
   // TODO make a custom hook
@@ -16,22 +17,30 @@ export default function NewEntryForm() {
       : Entry.task;
   /////////////////////
 
+  const { user } = useContext(AuthContext);
   const [task, setTask] = useState("");
   const [priority, setPriority] = useState(Priority.medium);
   const [date, setDate] = useState("");
-  const [frequency, setFrequency] = useState("none");
-  const [repetition, setRepetition] = useState("1");
+  const [frequency, setFrequency] = useState<string | undefined>(undefined);
+  const [repetition, setRepetition] = useState<string | undefined>(undefined);
   const [isSuccessSaveStatus, setIsSuccessSaveStatus] = useState<
     boolean | null
   >(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const isSuccess = await saveNewTask({
-      type: entryType,
-      data: { task, priority, date, frequency, repetition },
-    });
-    setIsSuccessSaveStatus(isSuccess);
+    if (user) {
+      const data = { task, priority, date, frequency, repetition };
+      const filteredData = JSON.parse(JSON.stringify(data));
+      const isSuccess = await saveNewTask({
+        uid: user?.uid,
+        type: entryType,
+        data: filteredData,
+      });
+      setIsSuccessSaveStatus(isSuccess);
+    } else {
+      setIsSuccessSaveStatus(false);
+    }
   }
 
   return (
@@ -110,7 +119,7 @@ export default function NewEntryForm() {
             <Form.Control
               type="number"
               placeholder="Enter number"
-              value={repetition}
+              // value={repetition}
               onChange={(e) => setRepetition(e.target.value)}
               required
             />

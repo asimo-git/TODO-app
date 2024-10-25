@@ -4,12 +4,13 @@ import { Container, Spinner } from "react-bootstrap";
 import { Entry } from "../utils/constatnts";
 import { SavedTask } from "../utils/interfaces";
 import TaskCard from "../components/TaskCard";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getTasksFromFireStore } from "../utils/helpers";
-import { useAuth } from "../utils/hooks";
+import { AuthContext } from "../utils/context";
 
 export default function TasksPool() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useContext(AuthContext);
+
   const [tasksData, setTasksData] = useState<{
     [key in Entry]: SavedTask[];
   }>({
@@ -34,13 +35,20 @@ export default function TasksPool() {
     }
   }, [user]);
 
+  const removeTask = (taskId: string, type: Entry) => {
+    setTasksData((prevTasksData) => ({
+      ...prevTasksData,
+      [type]: prevTasksData[type].filter((task) => task.id !== taskId),
+    }));
+  };
+
   const renderTaskSection = (title: string, tasks: SavedTask[]) => {
     if (tasks.length === 0) return null;
     return (
       <Container>
         <h3>{title}</h3>
         {tasks.map((task) => (
-          <TaskCard key={task.id} data={task} />
+          <TaskCard key={task.id} data={task} onDelete={removeTask} />
         ))}
       </Container>
     );

@@ -1,32 +1,36 @@
-import { addDoc, collection, getDocs, QuerySnapshot } from "firebase/firestore";
-import { auth, db } from "../services/firebase";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  QuerySnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../services/firebase";
 import { SavedTask, Task } from "./interfaces";
 import { Entry } from "./constatnts";
 
 export async function saveNewTask({
+  uid,
   type,
   data,
 }: {
+  uid: string;
   type: string;
   data: Task;
 }) {
-  const currentUser = auth.currentUser;
-
-  if (currentUser) {
-    const { uid } = currentUser;
-
-    try {
-      await addDoc(collection(db, `users/${uid}/tasks`), {
-        type,
-        ...data,
-      });
-
-      return true;
-    } catch {
-      return false;
-    }
+  try {
+    await addDoc(collection(db, `users/${uid}/tasks`), {
+      type,
+      ...data,
+    });
+    console.log(data);
+    return true;
+  } catch (error) {
+    console.error("Error while saving task:", error);
+    return false;
   }
-  return false;
 }
 
 export async function getTasksFromFireStore(uid: string = "") {
@@ -50,6 +54,39 @@ export async function getTasksFromFireStore(uid: string = "") {
 
     return tasks;
   } catch (error) {
-    console.error("Ошибка при получении задач:", error);
+    console.error("Error while getting tasks:", error);
+  }
+}
+
+export async function deleteTask(uid: string, taskId: string) {
+  try {
+    const taskRef = doc(db, `users/${uid}/tasks`, taskId);
+    await deleteDoc(taskRef);
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    return false;
+  }
+}
+
+export async function updateTask({
+  uid,
+  taskId,
+  updatedData,
+}: {
+  uid: string;
+  taskId: string;
+  updatedData: Partial<Task>;
+}) {
+  try {
+    const taskRef = doc(db, `users/${uid}/tasks`, taskId);
+    await updateDoc(taskRef, updatedData);
+
+    console.log("Задача успешно обновлена");
+    return true;
+  } catch (error) {
+    console.error("Ошибка при обновлении задачи:", error);
+    return false;
   }
 }

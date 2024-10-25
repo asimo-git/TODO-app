@@ -1,9 +1,10 @@
 "use client";
+import { useContext } from "react";
 import TodayPanel from "./components/TodayPanel";
-import { useAuth } from "./utils/hooks";
+import { AuthContext } from "./utils/context";
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useContext(AuthContext);
 
   if (loading) {
     return <div>Loading...</div>;

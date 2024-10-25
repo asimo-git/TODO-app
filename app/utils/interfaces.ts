@@ -1,3 +1,5 @@
+import { Entry } from "./constatnts";
+
 export interface Task {
   task: string;
   priority: string;
@@ -8,5 +10,5 @@ export interface Task {
 
 export interface SavedTask extends Task {
   id: string;
-  type: string;
+  type: Entry;
 }
