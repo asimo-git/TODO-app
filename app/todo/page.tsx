@@ -5,11 +5,12 @@ import { Entry } from "../utils/constatnts";
 import { SavedTask } from "../utils/interfaces";
 import TaskCard from "../components/TaskCard";
 import { useContext, useEffect, useState } from "react";
-import { getTasksFromFireStore } from "../utils/helpers";
+import { getTasksFromFireStore } from "../services/firebase";
 import { AuthContext } from "../utils/context";
 
 export default function TasksPool() {
   const { user, loading } = useContext(AuthContext);
+  const [isEmpty, setIsEmpty] = useState(false);
 
   const [tasksData, setTasksData] = useState<{
     [key in Entry]: SavedTask[];
@@ -29,6 +30,8 @@ export default function TasksPool() {
             [Entry.heap]: loadedTasks[Entry.heap],
             [Entry.habit]: loadedTasks[Entry.habit],
           });
+        } else {
+          setIsEmpty(true);
         }
       };
       loadTasks();
@@ -74,6 +77,10 @@ export default function TasksPool() {
         <span className="visually-hidden">Loading...</span>
       </Spinner>
     );
+  }
+
+  if (isEmpty) {
+    return <Container>Tasks not created yet</Container>;
   }
 
   return (

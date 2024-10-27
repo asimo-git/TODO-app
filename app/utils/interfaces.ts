@@ -1,8 +1,8 @@
-import { Entry } from "./constatnts";
+import { Entry, Priority } from "./constatnts";
 
 export interface Task {
   task: string;
-  priority: string;
+  priority: Priority;
   date: string;
   frequency?: string;
   repetition?: string;

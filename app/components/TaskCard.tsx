@@ -1,17 +1,11 @@
-import {
-  Alert,
-  Button,
-  ButtonGroup,
-  Card,
-  CardBody,
-  CardFooter,
-  CardTitle,
-} from "react-bootstrap";
+import { Alert, Card, CardBody, CardFooter, CardTitle } from "react-bootstrap";
 import { SavedTask } from "../utils/interfaces";
-import { Entry, Priority } from "../utils/constatnts";
-import { useContext, useState } from "react";
+import { Entry } from "../utils/constatnts";
+import { useContext, useMemo, useState } from "react";
 import { AuthContext } from "../utils/context";
-import { deleteTask, saveNewTask, updateTask } from "../utils/helpers";
+import { deleteTask, saveNewTask, updateTask } from "../services/firebase";
+import ActionButtonGroup from "./ActionButtonGroup";
+import { getPriorityFontSize, getTypeColor } from "../utils/helpers";
 
 export default function TaskCard({
   data,
@@ -27,24 +21,11 @@ export default function TaskCard({
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState(data);
 
-  const priorityFontSize =
-    data.priority === Priority.low
-      ? "fs-5"
-      : data.priority === Priority.high
-      ? "fs-2"
-      : "fs-4";
-
-  const typeColor =
-    data.type === Entry.task
-      ? "bg-light"
-      : data.type === Entry.heap
-      ? "bg-success"
-      : "bg-info";
-
-  const handleUpdateTask = () => {
-    setError(null);
-    setIsEditing(true);
-  };
+  const priorityFontSize = useMemo(
+    () => getPriorityFontSize(data.priority),
+    [data.priority]
+  );
+  const typeColor = useMemo(() => getTypeColor(data.type), [data.type]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,21 +35,23 @@ export default function TaskCard({
     }));
   };
 
+  const handleUpdateTask = () => {
+    setError(null);
+    setIsEditing(true);
+  };
+
   const handleSaveChanges = async () => {
     setError(null);
     setIsEditing(false);
 
     try {
-      const response = await updateTask({
+      await updateTask({
         uid: user?.uid || "",
         updatedData: editedData,
       });
-      if (response) {
-        onUpdate(editedData);
-      } else {
-        setError("Failed to save changes. Please try again.");
-      }
-    } catch {
+      onUpdate(editedData);
+    } catch (error) {
+      console.error("Error saving task:", error);
       setError("Failed to save changes. Please try again.");
     }
   };
@@ -80,10 +63,11 @@ export default function TaskCard({
 
   const handleDeleteTask = async () => {
     if (user) {
-      const response = await deleteTask(user?.uid, data.id);
-      if (response) {
+      try {
+        await deleteTask(user?.uid, data.id);
         onDelete(data.id, data.type);
-      } else {
+      } catch (error) {
+        console.error("Error deleting task:", error);
         setError("Failed to delete task. Please try again.");
       }
     }
@@ -91,13 +75,14 @@ export default function TaskCard({
 
   const handleCompleteTask = async () => {
     const doneTask = { ...data, completedDate: new Date() };
-    const response = await saveNewTask({
-      uid: user?.uid || "",
-      data: doneTask,
-    });
-    if (response) {
+    try {
+      await saveNewTask({
+        uid: user?.uid || "",
+        data: doneTask,
+      });
       handleDeleteTask();
-    } else {
+    } catch (error) {
+      console.error("Error while saving task:", error);
       setError("Failed to complete task. Please try again.");
     }
   };
@@ -174,47 +159,14 @@ export default function TaskCard({
           )}
         </div>
 
-        <ButtonGroup aria-label="Task actions">
-          {isEditing ? (
-            <>
-              <Button variant="primary" size="sm" onClick={handleSaveChanges}>
-                Save
-              </Button>
-              <Button variant="primary" size="sm" onClick={handleUndoChanges}>
-                Return
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="w-33"
-                onClick={handleCompleteTask}
-              >
-                &#10003;
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="sm"
-                className="w-33"
-                onClick={handleUpdateTask}
-              >
-                &#9998;
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="sm"
-                className="w-33"
-                onClick={handleDeleteTask}
-              >
-                &#128465;
-              </Button>
-            </>
-          )}
-        </ButtonGroup>
+        <ActionButtonGroup
+          isEditing={isEditing}
+          onCompleteTask={handleCompleteTask}
+          onSaveChanges={handleSaveChanges}
+          onUndoChanges={handleUndoChanges}
+          onUpdateTask={handleUpdateTask}
+          onDeleteTask={handleDeleteTask}
+        ></ActionButtonGroup>
       </CardFooter>
 
       {error && (

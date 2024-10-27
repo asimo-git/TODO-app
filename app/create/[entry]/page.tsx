@@ -4,8 +4,8 @@ import { usePathname } from "next/navigation";
 import { useContext, useState } from "react";
 import { Button, Col, Form, Row, Toast, ToastContainer } from "react-bootstrap";
 import { Entry, Priority } from "@/app/utils/constatnts";
-import { saveNewTask } from "@/app/utils/helpers";
 import { AuthContext } from "@/app/utils/context";
+import { saveNewTask } from "@/app/services/firebase";
 
 export default function NewEntryForm() {
   // TODO make a custom hook
@@ -39,13 +39,15 @@ export default function NewEntryForm() {
         type: entryType,
       };
       const filteredData = JSON.parse(JSON.stringify(data));
-      const isSuccess = await saveNewTask({
-        uid: user?.uid,
-        data: filteredData,
-      });
-      setIsSuccessSaveStatus(isSuccess);
-    } else {
-      setIsSuccessSaveStatus(false);
+      try {
+        await saveNewTask({
+          uid: user?.uid,
+          data: filteredData,
+        });
+        setIsSuccessSaveStatus(true);
+      } catch {
+        setIsSuccessSaveStatus(false);
+      }
     }
   }
 

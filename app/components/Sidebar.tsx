@@ -42,7 +42,7 @@ export default function Sidebar() {
                   </Collapse>
                 </Nav.Item>
                 <Nav.Link href="/todo">ToDo</Nav.Link>
-                <Nav.Link href="/contact">Done</Nav.Link>
+                <Nav.Link href="/done">Done</Nav.Link>
               </Nav>
             </Offcanvas.Body>
           </Navbar.Offcanvas>
