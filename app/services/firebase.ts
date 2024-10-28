@@ -43,10 +43,10 @@ export async function saveNewTask({
   await addDoc(collection(db, path), data);
 }
 
-export async function getTasksFromFireStore(uid: string = "") {
+export async function getTasksFromFireStore(uid: string = "", section: string) {
   try {
     const tasksSnapshot: QuerySnapshot = await getDocs(
-      collection(db, `users/${uid}/tasks`)
+      collection(db, `users/${uid}/${section}`)
     );
 
     if (tasksSnapshot.empty) {
@@ -72,19 +72,31 @@ export async function getTasksFromFireStore(uid: string = "") {
   }
 }
 
-export async function deleteTask(uid: string, taskId: string) {
-  const taskRef = doc(db, `users/${uid}/tasks`, taskId);
+interface DeleteTaskParams {
+  uid: string;
+  taskId: string;
+  typeTask: string;
+}
+
+export async function deleteTask({ uid, taskId, typeTask }: DeleteTaskParams) {
+  const path = typeTask === "done" ? "completed" : "tasks";
+  const taskRef = doc(db, `users/${uid}/${path}`, taskId);
   await deleteDoc(taskRef);
+}
+
+interface UpdateTaskParams {
+  uid: string;
+  updatedData: SavedTask;
+  typeTask: string;
 }
 
 export async function updateTask({
   uid,
   updatedData,
-}: {
-  uid: string;
-  updatedData: SavedTask;
-}) {
-  const taskRef = doc(db, `users/${uid}/tasks`, updatedData.id);
+  typeTask,
+}: UpdateTaskParams) {
+  const path = typeTask === "done" ? "completed" : "tasks";
+  const taskRef = doc(db, `users/${uid}/${path}`, updatedData.id);
   // eslint-disable-next-line
   const { id, type, ...fieldsToUpdate } = updatedData;
   await updateDoc(taskRef, fieldsToUpdate);

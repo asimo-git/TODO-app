@@ -11,5 +11,5 @@ export interface Task {
 
 export interface SavedTask extends Task {
   id: string;
-  completedDate?: Date;
+  completedDate?: string;
 }

@@ -9,3 +9,5 @@ export enum Priority {
   medium = "Medium",
   high = "High",
 }
+
+export type TaskType = "todo" | "done";

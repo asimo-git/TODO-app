@@ -1,11 +1,12 @@
 import { Alert, Card, CardBody, CardFooter, CardTitle } from "react-bootstrap";
 import { SavedTask } from "../utils/interfaces";
-import { Entry } from "../utils/constatnts";
+import { Entry, TaskType } from "../utils/constatnts";
 import { useContext, useMemo, useState } from "react";
 import { AuthContext } from "../utils/context";
 import { deleteTask, saveNewTask, updateTask } from "../services/firebase";
 import ActionButtonGroup from "./ActionButtonGroup";
 import { getPriorityFontSize, getTypeColor } from "../utils/helpers";
+import Image from "next/image";
 
 export default function TaskCard({
   data,
@@ -20,6 +21,7 @@ export default function TaskCard({
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState(data);
+  const typeTask: TaskType = data.completedDate ? "done" : "todo";
 
   const priorityFontSize = useMemo(
     () => getPriorityFontSize(data.priority),
@@ -48,6 +50,7 @@ export default function TaskCard({
       await updateTask({
         uid: user?.uid || "",
         updatedData: editedData,
+        typeTask,
       });
       onUpdate(editedData);
     } catch (error) {
@@ -64,7 +67,7 @@ export default function TaskCard({
   const handleDeleteTask = async () => {
     if (user) {
       try {
-        await deleteTask(user?.uid, data.id);
+        await deleteTask({ uid: user?.uid, taskId: data.id, typeTask });
         onDelete(data.id, data.type);
       } catch (error) {
         console.error("Error deleting task:", error);
@@ -74,7 +77,9 @@ export default function TaskCard({
   };
 
   const handleCompleteTask = async () => {
-    const doneTask = { ...data, completedDate: new Date() };
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0];
+    const doneTask = { ...data, completedDate: formattedDate };
     try {
       await saveNewTask({
         uid: user?.uid || "",
@@ -82,8 +87,23 @@ export default function TaskCard({
       });
       handleDeleteTask();
     } catch (error) {
-      console.error("Error while saving task:", error);
+      console.error("Error while completing task:", error);
       setError("Failed to complete task. Please try again.");
+    }
+  };
+
+  const handleUndoTask = async () => {
+    // eslint-disable-next-line
+    const { completedDate, ...newTask } = data;
+    try {
+      await saveNewTask({
+        uid: user?.uid || "",
+        data: newTask,
+      });
+      handleDeleteTask();
+    } catch (error) {
+      console.error("Error while undo task:", error);
+      setError("Failed to undo task. Please try again.");
     }
   };
 
@@ -99,7 +119,18 @@ export default function TaskCard({
             className="form-control"
           />
         ) : (
-          data.task
+          <>
+            <span>{data.task}</span>
+            {data.completedDate && (
+              <Image
+                src="/check.svg"
+                alt="check icon"
+                width={30}
+                height={30}
+                className="m-1"
+              />
+            )}
+          </>
         )}
       </CardTitle>
 
@@ -152,20 +183,43 @@ export default function TaskCard({
               name="date"
               value={editedData.date}
               onChange={handleChange}
-              className="form-control d-inline w-25"
+              className="form-control d-inline"
+              style={{ maxWidth: "200px" }}
             />
           ) : (
             data.date
           )}
         </div>
+        <div className="flex-grow-1">
+          {data.completedDate && (
+            <>
+              Completed Date -{" "}
+              {isEditing ? (
+                <input
+                  type="date"
+                  name="completedDate"
+                  value={editedData.completedDate}
+                  onChange={handleChange}
+                  className="form-control d-inline"
+                  style={{ maxWidth: "200px" }}
+                />
+              ) : (
+                data.completedDate
+              )}
+            </>
+          )}
+        </div>
 
         <ActionButtonGroup
           isEditing={isEditing}
-          onCompleteTask={handleCompleteTask}
+          onChangeStatus={
+            data.completedDate ? handleUndoTask : handleCompleteTask
+          }
           onSaveChanges={handleSaveChanges}
           onUndoChanges={handleUndoChanges}
           onUpdateTask={handleUpdateTask}
           onDeleteTask={handleDeleteTask}
+          typeTask={typeTask}
         ></ActionButtonGroup>
       </CardFooter>
 

@@ -1,21 +1,24 @@
 import { Button, ButtonGroup } from "react-bootstrap";
+import { TaskType } from "../utils/constatnts";
 
 interface ActionButtonGroupProps {
   isEditing: boolean;
   onSaveChanges: () => void;
   onUndoChanges: () => void;
-  onCompleteTask: () => void;
+  onChangeStatus: () => void;
   onUpdateTask: () => void;
   onDeleteTask: () => void;
+  typeTask: TaskType;
 }
 
 export default function ActionButtonGroup({
   isEditing,
   onUndoChanges,
   onSaveChanges,
-  onCompleteTask,
+  onChangeStatus,
   onUpdateTask,
   onDeleteTask,
+  typeTask,
 }: ActionButtonGroupProps) {
   return (
     <ButtonGroup aria-label="Task actions">
@@ -34,9 +37,9 @@ export default function ActionButtonGroup({
             variant="secondary"
             size="sm"
             className="w-33"
-            onClick={onCompleteTask}
+            onClick={onChangeStatus}
           >
-            &#10003;
+            {typeTask === "todo" ? "\u2713" : "\u21A9"}
           </Button>
 
           <Button
