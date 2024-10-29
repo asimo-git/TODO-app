@@ -5,8 +5,13 @@ import { useContext, useMemo, useState } from "react";
 import { AuthContext } from "../utils/context";
 import { deleteTask, saveNewTask, updateTask } from "../services/firebase";
 import ActionButtonGroup from "./ActionButtonGroup";
-import { getPriorityFontSize, getTypeColor } from "../utils/helpers";
+import {
+  decodeFrequencyToText,
+  getPriorityFontSize,
+  getTypeColor,
+} from "../utils/helpers";
 import Image from "next/image";
+import TaskFrequencySelector from "./TaskFrequencySelector";
 
 export default function TaskCard({
   data,
@@ -45,6 +50,7 @@ export default function TaskCard({
   const handleSaveChanges = async () => {
     setError(null);
     setIsEditing(false);
+    console.log(editedData);
 
     try {
       await updateTask({
@@ -135,22 +141,20 @@ export default function TaskCard({
       </CardTitle>
 
       <CardBody className="py-0">
-        {data.frequency && (
-          <>
-            Frequency:{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="frequency"
-                value={editedData.frequency}
-                onChange={handleChange}
-                className="form-control d-inline w-25"
-              />
-            ) : (
-              data.frequency
-            )}
-          </>
-        )}
+        {data.frequency &&
+          (isEditing ? (
+            <TaskFrequencySelector
+              value={editedData.frequency}
+              onChange={(value) =>
+                setEditedData((prev) => ({
+                  ...prev,
+                  frequency: value,
+                }))
+              }
+            />
+          ) : (
+            <>Repetition Frequency: {decodeFrequencyToText(data.frequency)}</>
+          ))}
 
         {data.repetition && (
           <>
@@ -158,9 +162,16 @@ export default function TaskCard({
             {isEditing ? (
               <input
                 type="text"
+                inputMode="numeric"
                 name="repetition"
                 value={editedData.repetition}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, "");
+                  setEditedData((prev) => ({
+                    ...prev,
+                    repetition: onlyDigits,
+                  }));
+                }}
                 className="form-control d-inline w-25"
               />
             ) : (

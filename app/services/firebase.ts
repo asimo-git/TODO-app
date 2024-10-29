@@ -66,6 +66,7 @@ export async function getTasksFromFireStore(uid: string = "", section: string) {
       tasks[task.type as Entry].push(task);
     });
 
+    console.log(tasks);
     return tasks;
   } catch (error) {
     console.error("Error while getting tasks:", error);

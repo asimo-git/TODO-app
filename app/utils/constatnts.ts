@@ -10,4 +10,14 @@ export enum Priority {
   high = "High",
 }
 
+export enum DaysOfWeek {
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+}
+
 export type TaskType = "todo" | "done";

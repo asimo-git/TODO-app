@@ -6,6 +6,7 @@ import { Button, Col, Form, Row, Toast, ToastContainer } from "react-bootstrap";
 import { Entry, Priority } from "@/app/utils/constatnts";
 import { AuthContext } from "@/app/utils/context";
 import { saveNewTask } from "@/app/services/firebase";
+import TaskFrequencySelector from "@/app/components/TaskFrequencySelector";
 
 export default function NewEntryForm() {
   // TODO make a custom hook
@@ -39,6 +40,7 @@ export default function NewEntryForm() {
         type: entryType,
       };
       const filteredData = JSON.parse(JSON.stringify(data));
+      console.log(filteredData);
       try {
         await saveNewTask({
           uid: user?.uid,
@@ -107,27 +109,20 @@ export default function NewEntryForm() {
         </Row>
 
         {lastSegment === "habit" && (
-          <Form.Group controlId="taskFrequency" className="mb-3">
-            <Form.Label>Repetition Frequency</Form.Label>
-            <Form.Select
-              value={frequency}
-              onChange={(e) => setFrequency(e.target.value)}
-            >
-              <option value="none">None</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </Form.Select>
-          </Form.Group>
+          <TaskFrequencySelector value={frequency} onChange={setFrequency} />
         )}
 
         {lastSegment === "heap" && (
           <Form.Group controlId="repetitionCount" className="mb-3">
             <Form.Label>Repetition count</Form.Label>
             <Form.Control
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="Enter number"
-              onChange={(e) => setRepetition(e.target.value)}
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, "");
+                setRepetition(onlyDigits);
+              }}
               required
             />
           </Form.Group>
@@ -137,6 +132,7 @@ export default function NewEntryForm() {
           {`Add ${entryType}`}
         </Button>
       </Form>
+
       <div className="position-relative">
         <ToastContainer position="top-start" className="p-3">
           <Toast
