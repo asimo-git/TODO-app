@@ -6,7 +6,6 @@ import { AuthContext } from "../utils/context";
 import {
   completeTask,
   deleteTask,
-  saveNewTask,
   undoTask,
   updateTask,
 } from "../services/firebase";
@@ -89,15 +88,6 @@ export default function TaskCard({
   };
 
   const handleCompleteTask = async () => {
-    // const today = new Date();
-    // const formattedDate = today.toISOString().split("T")[0];
-    // const doneTask = { ...data, completedDate: formattedDate };
-    // try {
-    //   await saveNewTask({
-    //     uid: user?.uid || "",
-    //     data: doneTask,
-    //   });
-    //   handleDeleteTask();
     try {
       await completeTask({ uid: user?.uid || "", data });
     } catch (error) {
@@ -107,14 +97,7 @@ export default function TaskCard({
   };
 
   const handleUndoTask = async () => {
-    // eslint-disable-next-line
-    // const { completedDate, ...newTask } = data;
     try {
-      // await saveNewTask({
-      //   uid: user?.uid || "",
-      //   data: newTask,
-      // });
-      // handleDeleteTask();
       await undoTask({ uid: user?.uid || "", data });
     } catch (error) {
       console.error("Error while undo task:", error);

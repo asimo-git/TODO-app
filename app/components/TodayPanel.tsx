@@ -11,6 +11,7 @@ import {
 } from "../services/firebase";
 import { Entry } from "../utils/constatnts";
 import { SavedTask } from "../utils/interfaces";
+import ProtectedRoute from "./ProtectedRoute";
 
 export default function TodayPanel() {
   const { user } = useContext(AuthContext);
@@ -118,19 +119,21 @@ export default function TodayPanel() {
   };
 
   return (
-    <Card
-      style={{ width: "fit-content" }}
-      className="m-2 d-flex flex-column align-items-center p-3"
-    >
-      <CardBody>
-        <h2>Today:</h2>
+    <ProtectedRoute>
+      <Card
+        style={{ width: "fit-content" }}
+        className="m-2 d-flex flex-column align-items-center p-3"
+      >
+        <CardBody>
+          <h2>Today:</h2>
 
-        {isEmpty && <div>There are no tasks for today</div>}
+          {isEmpty && <div>There are no tasks for today</div>}
 
-        {renderTaskSection("Tasks:", tasksData.task)}
-        {renderTaskSection("Habits:", tasksData.habit)}
-        {renderTaskSection("Heaps:", tasksData.heap)}
-      </CardBody>
-    </Card>
+          {renderTaskSection("Tasks:", tasksData.task)}
+          {renderTaskSection("Habits:", tasksData.habit)}
+          {renderTaskSection("Heaps:", tasksData.heap)}
+        </CardBody>
+      </Card>
+    </ProtectedRoute>
   );
 }

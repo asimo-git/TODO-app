@@ -1,10 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Collapse, Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import { Entry } from "../utils/constatnts";
+import { AuthContext } from "../utils/context";
+import { signOut } from "firebase/auth";
+import { auth } from "../services/firebase";
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
+  const { user } = useContext(AuthContext);
 
   return (
     <div>
@@ -43,6 +47,9 @@ export default function Sidebar() {
                 </Nav.Item>
                 <Nav.Link href="/todo">ToDo</Nav.Link>
                 <Nav.Link href="/done">Done</Nav.Link>
+                {user && (
+                  <Nav.Link onClick={() => signOut(auth)}>Log out</Nav.Link>
+                )}
               </Nav>
             </Offcanvas.Body>
           </Navbar.Offcanvas>

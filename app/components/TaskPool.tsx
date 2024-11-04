@@ -1,15 +1,16 @@
 "use client";
 
-import { Container, Spinner } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import { Entry, TaskType } from "../utils/constatnts";
 import { SavedTask } from "../utils/interfaces";
 import TaskCard from "./TaskCard";
 import { useContext, useEffect, useState } from "react";
 import { getTasksFromFireStore } from "../services/firebase";
 import { AuthContext } from "../utils/context";
+import ProtectedRoute from "./ProtectedRoute";
 
 export default function TasksPool({ pageType }: { pageType: TaskType }) {
-  const { user, loading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [isEmpty, setIsEmpty] = useState(false);
 
   const [tasksData, setTasksData] = useState<{
@@ -72,29 +73,23 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
     );
   };
 
-  if (loading) {
-    return (
-      <Spinner animation="border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </Spinner>
-    );
-  }
-
   if (isEmpty) {
     return (
-      <Container>
-        {pageType === "todo"
-          ? "Tasks not created yet"
-          : "There are no completed tasks yet"}
-      </Container>
+      <ProtectedRoute>
+        <Container>
+          {pageType === "todo"
+            ? "Tasks not created yet"
+            : "There are no completed tasks yet"}
+        </Container>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <>
+    <ProtectedRoute>
       {renderTaskSection("Tasks", tasksData[Entry.task])}
       {renderTaskSection("Heaps", tasksData[Entry.heap])}
       {renderTaskSection("Habits", tasksData[Entry.habit])}
-    </>
+    </ProtectedRoute>
   );
 }

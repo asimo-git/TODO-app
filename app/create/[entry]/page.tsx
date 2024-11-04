@@ -7,6 +7,7 @@ import { Entry, Priority } from "@/app/utils/constatnts";
 import { AuthContext } from "@/app/utils/context";
 import { saveNewTask } from "@/app/services/firebase";
 import TaskFrequencySelector from "@/app/components/TaskFrequencySelector";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
 export default function NewEntryForm() {
   // TODO make a custom hook
@@ -54,7 +55,7 @@ export default function NewEntryForm() {
   }
 
   return (
-    <>
+    <ProtectedRoute>
       <Form
         onSubmit={handleSubmit}
         style={{ maxWidth: "800px" }}
@@ -153,6 +154,6 @@ export default function NewEntryForm() {
           </Toast>
         </ToastContainer>
       </div>
-    </>
+    </ProtectedRoute>
   );
 }
