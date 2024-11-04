@@ -3,7 +3,13 @@ import { SavedTask } from "../utils/interfaces";
 import { Entry, TaskType } from "../utils/constatnts";
 import { useContext, useMemo, useState } from "react";
 import { AuthContext } from "../utils/context";
-import { deleteTask, saveNewTask, updateTask } from "../services/firebase";
+import {
+  completeTask,
+  deleteTask,
+  saveNewTask,
+  undoTask,
+  updateTask,
+} from "../services/firebase";
 import ActionButtonGroup from "./ActionButtonGroup";
 import {
   decodeFrequencyToText,
@@ -83,15 +89,17 @@ export default function TaskCard({
   };
 
   const handleCompleteTask = async () => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0];
-    const doneTask = { ...data, completedDate: formattedDate };
+    // const today = new Date();
+    // const formattedDate = today.toISOString().split("T")[0];
+    // const doneTask = { ...data, completedDate: formattedDate };
+    // try {
+    //   await saveNewTask({
+    //     uid: user?.uid || "",
+    //     data: doneTask,
+    //   });
+    //   handleDeleteTask();
     try {
-      await saveNewTask({
-        uid: user?.uid || "",
-        data: doneTask,
-      });
-      handleDeleteTask();
+      await completeTask({ uid: user?.uid || "", data });
     } catch (error) {
       console.error("Error while completing task:", error);
       setError("Failed to complete task. Please try again.");
@@ -100,13 +108,14 @@ export default function TaskCard({
 
   const handleUndoTask = async () => {
     // eslint-disable-next-line
-    const { completedDate, ...newTask } = data;
+    // const { completedDate, ...newTask } = data;
     try {
-      await saveNewTask({
-        uid: user?.uid || "",
-        data: newTask,
-      });
-      handleDeleteTask();
+      // await saveNewTask({
+      //   uid: user?.uid || "",
+      //   data: newTask,
+      // });
+      // handleDeleteTask();
+      await undoTask({ uid: user?.uid || "", data });
     } catch (error) {
       console.error("Error while undo task:", error);
       setError("Failed to undo task. Please try again.");

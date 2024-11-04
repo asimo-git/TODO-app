@@ -21,3 +21,5 @@ export enum DaysOfWeek {
 }
 
 export type TaskType = "todo" | "done";
+
+export type FirestoreSection = "tasks" | "completed";

@@ -8,10 +8,15 @@ import {
   getDocs,
   getFirestore,
   QuerySnapshot,
+  setDoc,
   updateDoc,
 } from "firebase/firestore";
 import { SavedTask, Task } from "../utils/interfaces";
-import { Entry } from "../utils/constatnts";
+import { Entry, FirestoreSection } from "../utils/constatnts";
+import {
+  isTodayMatchingInterval,
+  isTodayMatchingWeekDays,
+} from "../utils/helpers";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -34,16 +39,21 @@ export async function saveNewTask({
   uid: string;
   data: Task | SavedTask;
 }) {
-  let path: string;
-  if ("completedDate" in data && data.completedDate) {
-    path = `users/${uid}/completed`;
+  const path =
+    "completedDate" in data && data.completedDate
+      ? `users/${uid}/completed`
+      : `users/${uid}/tasks`;
+  if ("id" in data) {
+    await setDoc(doc(db, path, data.id), data);
   } else {
-    path = `users/${uid}/tasks`;
+    await addDoc(collection(db, path), data);
   }
-  await addDoc(collection(db, path), data);
 }
 
-export async function getTasksFromFireStore(uid: string = "", section: string) {
+export async function getTasksFromFireStore(
+  uid: string = "",
+  section: FirestoreSection
+) {
   try {
     const tasksSnapshot: QuerySnapshot = await getDocs(
       collection(db, `users/${uid}/${section}`)
@@ -66,7 +76,6 @@ export async function getTasksFromFireStore(uid: string = "", section: string) {
       tasks[task.type as Entry].push(task);
     });
 
-    console.log(tasks);
     return tasks;
   } catch (error) {
     console.error("Error while getting tasks:", error);
@@ -101,4 +110,151 @@ export async function updateTask({
   // eslint-disable-next-line
   const { id, type, ...fieldsToUpdate } = updatedData;
   await updateDoc(taskRef, fieldsToUpdate);
+}
+
+export async function completeTask({
+  uid,
+  data,
+}: {
+  uid: string;
+  data: SavedTask;
+}) {
+  const today = new Date();
+  const formattedDate = today.toISOString().split("T")[0];
+  const doneTask = { ...data, completedDate: formattedDate };
+
+  await saveNewTask({
+    uid,
+    data: doneTask,
+  });
+  await deleteTask({ uid, taskId: data.id, typeTask: "todo" });
+  console.log("completeTask", doneTask);
+}
+
+export async function undoTask({
+  uid,
+  data,
+}: {
+  uid: string;
+  data: SavedTask;
+}) {
+  // eslint-disable-next-line
+  const { completedDate, ...newTask } = data;
+
+  await saveNewTask({
+    uid,
+    data: newTask,
+  });
+  await deleteTask({ uid, taskId: data.id, typeTask: "done" });
+}
+
+export async function getTodayTasks(uid: string) {
+  const [tasks, doneTasks] = await Promise.all([
+    getTasksFromFireStore(uid, "tasks"),
+    getTasksFromFireStore(uid, "completed"),
+  ]);
+  if (!tasks && !doneTasks) return null;
+
+  const currentStrDate = new Date().toISOString().split("T")[0];
+  const currentDate = new Date();
+
+  if (tasks) {
+    tasks[Entry.task] = tasks[Entry.task].filter(
+      (task) => task.date === currentStrDate
+    );
+
+    tasks[Entry.heap] = tasks[Entry.heap].filter(
+      (task) => new Date(task.date) >= currentDate
+    );
+
+    if (doneTasks) {
+      tasks[Entry.task] = [
+        ...tasks[Entry.task],
+        ...doneTasks[Entry.task].filter((task) => task.date === currentStrDate),
+      ];
+
+      tasks[Entry.heap] = [
+        ...tasks[Entry.heap],
+        ...doneTasks[Entry.heap].filter(
+          (task) => task.completedDate === currentStrDate
+        ),
+      ];
+    }
+
+    tasks[Entry.habit] = tasks[Entry.habit].filter((task) => {
+      if (new Date(task.date) <= currentDate && task.frequency) {
+        if (task.frequency === "daily") return true;
+
+        if (!isNaN(+task.frequency!)) {
+          return (
+            task.date === currentStrDate ||
+            isTodayMatchingInterval(task.date, +task.frequency)
+          );
+        }
+
+        return isTodayMatchingWeekDays(task.frequency.split(","));
+      }
+    });
+  }
+
+  return tasks;
+}
+
+export async function handleCheckChange({
+  uid,
+  task,
+  checked,
+}: {
+  uid: string;
+  task: SavedTask;
+  checked: boolean;
+}) {
+  const { completedCounter = [] } = task;
+  const currentStrDate = new Date().toISOString().split("T")[0];
+  const updatedCompletedCounter = checked
+    ? [...completedCounter, currentStrDate]
+    : completedCounter.filter((item) => item !== currentStrDate);
+
+  let statusChanged: boolean = false;
+
+  if (task.type === Entry.heap) {
+    statusChanged = await checkHeapStatus({
+      uid,
+      task: { ...task, completedCounter: updatedCompletedCounter },
+      checked,
+    });
+  }
+
+  if (!statusChanged) {
+    await updateTask({
+      uid,
+      updatedData: { ...task, completedCounter: updatedCompletedCounter },
+      typeTask: "todo",
+    });
+  }
+}
+
+export async function checkHeapStatus({
+  uid,
+  task,
+  checked,
+}: {
+  uid: string;
+  task: SavedTask;
+  checked: boolean;
+}) {
+  const { completedCounter, repetition = 1 } = task;
+  const completedNumber = completedCounter?.length || 0;
+
+  if (checked && +repetition === completedNumber) {
+    await completeTask({ uid, data: task });
+    return true;
+  }
+
+  if (!checked && +repetition === completedNumber + 1) {
+    await undoTask({ uid, data: task });
+    return true;
+  }
+
+  return false;
 }

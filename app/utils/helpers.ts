@@ -37,3 +37,25 @@ export const decodeFrequencyToText = (value: string) => {
         .join(", ")
     : `every ${+value} days`;
 };
+
+export function isTodayMatchingInterval(
+  startDate: string,
+  interval: number
+): boolean {
+  const start = new Date(startDate);
+  const today = new Date();
+
+  // start.setHours(0, 0, 0, 0);
+  // today.setHours(0, 0, 0, 0);
+
+  const differenceInDays = Math.floor(
+    (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return differenceInDays >= 0 && differenceInDays % interval === 0;
+}
+
+export function isTodayMatchingWeekDays(daysArray: string[]): boolean {
+  const today = new Date().getDay();
+  return daysArray.includes(String(today));
+}
