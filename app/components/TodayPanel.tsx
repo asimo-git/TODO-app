@@ -12,6 +12,7 @@ import {
 import { Entry } from "../utils/constatnts";
 import { SavedTask } from "../utils/interfaces";
 import ProtectedRoute from "./ProtectedRoute";
+import { getPriorityFontSize } from "../utils/helpers";
 
 export default function TodayPanel() {
   const { user } = useContext(AuthContext);
@@ -102,8 +103,8 @@ export default function TodayPanel() {
     if (tasks.length === 0) return null;
     return (
       <>
-        <h3>{title}</h3>
-        <Form>
+        <h3 className="text-center">{title}</h3>
+        <Form className="mb-2">
           {tasks.map((task) => (
             <FormCheck
               key={task.id}
@@ -111,6 +112,7 @@ export default function TodayPanel() {
               label={task.task}
               checked={checkboxStates[task.id]}
               onChange={(e) => handleCheckboxChange(task, e.target.checked)}
+              className={getPriorityFontSize(task.priority)}
             />
           ))}
         </Form>
@@ -122,10 +124,10 @@ export default function TodayPanel() {
     <ProtectedRoute>
       <Card
         style={{ width: "fit-content" }}
-        className="m-2 d-flex flex-column align-items-center p-3"
+        className="my-0 mx-auto d-flex flex-column align-items-center px-5 shadow"
       >
         <CardBody>
-          <h2>Today:</h2>
+          <h2 className="display-2 mb-5">Today:</h2>
 
           {isEmpty && <div>There are no tasks for today</div>}
 

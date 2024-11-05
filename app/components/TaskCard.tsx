@@ -106,7 +106,10 @@ export default function TaskCard({
   };
 
   return (
-    <Card className={`${typeColor} mb-2`}>
+    <Card
+      className={`${typeColor} mb-2 shadow flex-grow-1`}
+      style={{ flexBasis: "200px", maxWidth: "600px" }}
+    >
       <CardTitle className={`${priorityFontSize} m-3`}>
         {isEditing ? (
           <input
@@ -173,7 +176,7 @@ export default function TaskCard({
         )}
       </CardBody>
 
-      <CardFooter className="d-flex justify-content-between align-items-center">
+      <CardFooter className="d-flex justify-content-between align-items-center flex-wrap">
         <div className="flex-grow-1">
           {data.type === Entry.task
             ? "Data -"

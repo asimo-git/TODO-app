@@ -59,17 +59,19 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
   const renderTaskSection = (title: string, tasks: SavedTask[]) => {
     if (tasks.length === 0) return null;
     return (
-      <Container>
+      <>
         <h3>{title}</h3>
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            data={task}
-            onDelete={removeTask}
-            onUpdate={updateTask}
-          />
-        ))}
-      </Container>
+        <div className="d-flex mb-4 flex-wrap gap-3">
+          {tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              data={task}
+              onDelete={removeTask}
+              onUpdate={updateTask}
+            />
+          ))}
+        </div>
+      </>
     );
   };
 

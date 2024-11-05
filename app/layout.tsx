@@ -6,13 +6,15 @@ import Sidebar from "./components/Sidebar";
 import { AuthProvider } from "./components/AuthProvider";
 
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+  // src: "./fonts/GeistMonoVF.woff",
+  src: "./fonts/Bellota-BoldItalic.ttf",
+  variable: "--font-regular",
   weight: "100 900",
 });
 
 const accentFont = localFont({
-  src: "./fonts/IslandMoments-Regular.ttf",
+  // src: "./fonts/IslandMoments-Regular.ttf",
+  src: "./fonts/Pacifico-Regular.ttf",
   variable: "--font-accent",
   weight: "100 900",
 });
