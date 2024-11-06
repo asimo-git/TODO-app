@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
 import { auth } from "../services/firebase";
 import {
@@ -8,12 +8,14 @@ import {
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
+import { AuthContext } from "../utils/context";
 
 export default function AuthentificationForm({
   type,
 }: {
   type: "login" | "register";
 }) {
+  const { user } = useContext(AuthContext);
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,9 +42,15 @@ export default function AuthentificationForm({
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
+
   return (
-    <Container className="mt-5">
-      <h2>{type === "login" ? "Log in" : "Register"}</h2>
+    <Container style={{ maxWidth: "600px" }}>
+      <h2 className="mb-4">{type === "login" ? "Log in" : "Register"}</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="formBasicEmail" className="mb-3">
@@ -71,8 +79,8 @@ export default function AuthentificationForm({
 
           <Button
             variant="link"
-            style={{ marginTop: "2rem" }}
-            className="position-absolute top-0 end-0 me-2"
+            style={{ marginTop: "2.3rem" }}
+            className="position-absolute top-0 end-0 me-1"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "🙈" : "👁️"}

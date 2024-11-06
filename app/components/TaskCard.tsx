@@ -90,6 +90,7 @@ export default function TaskCard({
   const handleCompleteTask = async () => {
     try {
       await completeTask({ uid: user?.uid || "", data });
+      onDelete(data.id, data.type);
     } catch (error) {
       console.error("Error while completing task:", error);
       setError("Failed to complete task. Please try again.");
@@ -99,6 +100,7 @@ export default function TaskCard({
   const handleUndoTask = async () => {
     try {
       await undoTask({ uid: user?.uid || "", data });
+      onDelete(data.id, data.type);
     } catch (error) {
       console.error("Error while undo task:", error);
       setError("Failed to undo task. Please try again.");
@@ -176,7 +178,7 @@ export default function TaskCard({
         )}
       </CardBody>
 
-      <CardFooter className="d-flex justify-content-between align-items-center flex-wrap">
+      <CardFooter className="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div className="flex-grow-1">
           {data.type === Entry.task
             ? "Data -"
