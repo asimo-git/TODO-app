@@ -56,3 +56,12 @@ main {
 .active {
   text-decoration: underline;
 }
+
+.responsive-font {
+  flex-basis: 380px;
+  flex-grow: 1;
+  text-align: right;
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
