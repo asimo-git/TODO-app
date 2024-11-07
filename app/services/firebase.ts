@@ -128,7 +128,6 @@ export async function completeTask({
     data: doneTask,
   });
   await deleteTask({ uid, taskId: data.id, typeTask: "todo" });
-  console.log("completeTask", doneTask);
 }
 
 export async function undoTask({

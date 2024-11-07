@@ -41,7 +41,6 @@ export default function NewEntryForm() {
         type: entryType,
       };
       const filteredData = JSON.parse(JSON.stringify(data));
-      console.log(filteredData);
       try {
         await saveNewTask({
           uid: user?.uid,

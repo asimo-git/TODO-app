@@ -9,6 +9,7 @@ import {
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
 import { AuthContext } from "../utils/context";
+import { FirebaseErrors } from "../utils/constatnts";
 
 export default function AuthentificationForm({
   type,
@@ -33,9 +34,8 @@ export default function AuthentificationForm({
         router.push("/");
       }
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        // TODO - add error messages
-        setError(error.code);
+      if (error instanceof FirebaseError && error.code in FirebaseErrors) {
+        setError(FirebaseErrors[error.code as keyof typeof FirebaseErrors]);
       } else {
         setError("unknown error, please try again later");
       }
@@ -90,6 +90,11 @@ export default function AuthentificationForm({
         <Button variant="primary" type="submit">
           Submit
         </Button>
+        <a href={type === "login" ? "/register" : "/login"}>
+          <Button variant="primary" type="button" className="ms-2">
+            {type === "login" ? "Register" : "Log in"}
+          </Button>
+        </a>
       </Form>
     </Container>
   );

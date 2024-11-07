@@ -55,7 +55,6 @@ export default function TaskCard({
   const handleSaveChanges = async () => {
     setError(null);
     setIsEditing(false);
-    console.log(editedData);
 
     try {
       await updateTask({
