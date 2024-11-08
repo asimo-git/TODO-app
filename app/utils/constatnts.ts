@@ -10,7 +10,7 @@ export enum Priority {
   high = "High",
 }
 
-export enum DaysOfWeek {
+export const daysOfWeek = [
   "Sunday",
   "Monday",
   "Tuesday",
@@ -18,9 +18,11 @@ export enum DaysOfWeek {
   "Thursday",
   "Friday",
   "Saturday",
-}
+];
 
 export type TaskType = "todo" | "done";
+
+export type Frequency = "daily" | "weekly" | "interval" | "counter";
 
 export type FirestoreSection = "tasks" | "completed";
 

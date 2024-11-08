@@ -13,4 +13,5 @@ export interface SavedTask extends Task {
   id: string;
   completedDate?: string;
   completedCounter?: string[];
+  counterPerWeek?: string;
 }

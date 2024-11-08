@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useContext, useState } from "react";
 import { Button, Col, Form, Row, Toast, ToastContainer } from "react-bootstrap";
 import { Entry, Priority } from "@/app/utils/constatnts";
@@ -8,23 +7,18 @@ import { AuthContext } from "@/app/utils/context";
 import { saveNewTask } from "@/app/services/firebase";
 import TaskFrequencySelector from "@/app/components/TaskFrequencySelector";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { Task } from "../utils/interfaces";
 
 export default function NewEntryForm() {
-  // TODO make a custom hook
-  const pathname = usePathname();
-  const lastSegment = pathname.split("/").filter(Boolean).pop();
-  const entryType =
-    lastSegment === Entry.heap || lastSegment === Entry.habit
-      ? lastSegment
-      : Entry.task;
-  /////////////////////
-
   const { user } = useContext(AuthContext);
+
+  const [type, setType] = useState(Entry.task);
   const [task, setTask] = useState("");
   const [priority, setPriority] = useState(Priority.medium);
   const [date, setDate] = useState("");
-  const [frequency, setFrequency] = useState<string | undefined>(undefined);
-  const [repetition, setRepetition] = useState<string | undefined>(undefined);
+  const [frequency, setFrequency] = useState("daily");
+  const [repetition, setRepetition] = useState("");
+
   const [isSuccessSaveStatus, setIsSuccessSaveStatus] = useState<
     boolean | null
   >(null);
@@ -32,21 +26,29 @@ export default function NewEntryForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (user) {
-      const data = {
+      const data: Task = {
         task,
         priority,
         date,
-        frequency,
-        repetition,
-        type: entryType,
+        // frequency,
+        // repetition,
+        type,
       };
-      const filteredData = JSON.parse(JSON.stringify(data));
+      if (data.type === Entry.habit) data.frequency = frequency;
+      if (repetition) data.repetition = repetition;
+
+      // const filteredData = JSON.parse(JSON.stringify(data));
       try {
         await saveNewTask({
           uid: user?.uid,
-          data: filteredData,
+          data,
         });
         setIsSuccessSaveStatus(true);
+        setTask("");
+        setDate("");
+        setFrequency("daily");
+        setRepetition("");
+        console.log(data);
       } catch {
         setIsSuccessSaveStatus(false);
       }
@@ -61,12 +63,20 @@ export default function NewEntryForm() {
         className="position-relative"
       >
         <Form.Group controlId="taskText" className="mb-3">
-          <Form.Label>
-            {entryType.charAt(0).toUpperCase() + entryType.slice(1)}
-          </Form.Label>
+          <Form.Label className="fs-4">Add new: </Form.Label>
+          <Form.Select
+            value={type}
+            onChange={(e) => setType(e.target.value as Entry)}
+            className="d-inline w-25 mx-2 mb-4 fs-4"
+          >
+            <option value={Entry.task}>{Entry.task}</option>
+            <option value={Entry.habit}>{Entry.habit}</option>
+            <option value={Entry.heap}>{Entry.heap}</option>
+          </Form.Select>
+
           <Form.Control
             type="text"
-            placeholder={`Enter ${entryType}`}
+            placeholder={`Enter ${type}`}
             value={task}
             onChange={(e) => setTask(e.target.value)}
             required
@@ -92,9 +102,9 @@ export default function NewEntryForm() {
           <Col>
             <Form.Group controlId="taskDate" className="mb-3">
               <Form.Label>
-                {entryType === Entry.habit
+                {type === Entry.habit
                   ? "Start"
-                  : entryType === Entry.heap
+                  : type === Entry.heap
                   ? "Deadline"
                   : "Date"}
               </Form.Label>
@@ -108,17 +118,18 @@ export default function NewEntryForm() {
           </Col>
         </Row>
 
-        {lastSegment === "habit" && (
+        {type === "habit" && (
           <TaskFrequencySelector value={frequency} onChange={setFrequency} />
         )}
 
-        {lastSegment === "heap" && (
+        {type === "heap" && (
           <Form.Group controlId="repetitionCount" className="mb-3">
             <Form.Label>Repetition count</Form.Label>
             <Form.Control
               type="text"
               inputMode="numeric"
               placeholder="Enter number"
+              value={repetition}
               onChange={(e) => {
                 const onlyDigits = e.target.value.replace(/\D/g, "");
                 setRepetition(onlyDigits);
@@ -129,7 +140,7 @@ export default function NewEntryForm() {
         )}
 
         <Button variant="primary" type="submit">
-          {`Add ${entryType}`}
+          {`Add ${type}`}
         </Button>
       </Form>
 

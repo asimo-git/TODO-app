@@ -1,4 +1,4 @@
-import { DaysOfWeek, Entry, Priority } from "./constatnts";
+import { daysOfWeek, Entry, Frequency, Priority } from "./constatnts";
 
 export const getPriorityFontSize = (priority: Priority) => {
   switch (priority) {
@@ -22,20 +22,22 @@ export const getTypeColor = (type: Entry) => {
   }
 };
 
-export const decodeFrequency = (value: string | undefined) => {
-  if (!value) return undefined;
-  if (value === "daily") return "daily";
-  return isNaN(Number(value)) ? "weekly" : "interval";
+export const decodeFrequency = (value: string): Frequency => {
+  if (!value || value === "daily") return "daily";
+  if (value.startsWith("interval")) return "interval";
+  return value.startsWith("daysPerWeek") ? "counter" : "weekly";
 };
 
 export const decodeFrequencyToText = (value: string) => {
   if (value === "daily") return "daily";
-  return isNaN(Number(value))
-    ? value
+  if (value.startsWith("daysPerWeek"))
+    return `${value.split("-")[1]} days per week`;
+  return value.startsWith("interval")
+    ? `every ${value.split("-")[1]} days`
+    : value
         .split(",")
-        .map((day) => DaysOfWeek[+day])
-        .join(", ")
-    : `every ${+value} days`;
+        .map((day) => daysOfWeek[+day])
+        .join(", ");
 };
 
 export function isTodayMatchingInterval(

@@ -140,7 +140,7 @@ export default function TaskCard({
         {data.frequency &&
           (isEditing ? (
             <TaskFrequencySelector
-              value={editedData.frequency}
+              value={editedData.frequency || ""}
               onChange={(value) =>
                 setEditedData((prev) => ({
                   ...prev,

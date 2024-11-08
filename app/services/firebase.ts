@@ -184,10 +184,17 @@ export async function getTodayTasks(uid: string) {
       if (new Date(task.date) <= currentDate && task.frequency) {
         if (task.frequency === "daily") return true;
 
-        if (!isNaN(+task.frequency!)) {
+        if (task.frequency.startsWith("interval")) {
           return (
             task.date === currentStrDate ||
-            isTodayMatchingInterval(task.date, +task.frequency)
+            isTodayMatchingInterval(task.date, +task.frequency.split("-")[1])
+          );
+        }
+
+        if (task.frequency.startsWith("daysPerWeek")) {
+          const targetCounter = task.frequency.split("-")[1];
+          return (
+            !task.completedCounter || +task.completedCounter < +targetCounter
           );
         }
 

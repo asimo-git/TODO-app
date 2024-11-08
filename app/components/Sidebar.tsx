@@ -1,14 +1,12 @@
 "use client";
-import { useContext, useState } from "react";
-import { Collapse, Nav, Navbar, Offcanvas } from "react-bootstrap";
-import { Entry } from "../utils/constatnts";
+import { useContext } from "react";
+import { Nav, Navbar, Offcanvas } from "react-bootstrap";
 import { AuthContext } from "../utils/context";
 import { signOut } from "firebase/auth";
 import { auth } from "../services/firebase";
 import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(false);
   const { user } = useContext(AuthContext);
   const pathname = usePathname();
 
@@ -32,28 +30,13 @@ export default function Sidebar() {
             <Nav.Link href="/" active={pathname === "/"}>
               Today
             </Nav.Link>
-            <Nav.Item>
-              <Nav.Link
-                onClick={() => setOpen((prev) => !prev)}
-                className="text-nowrap pe-5"
-                active={pathname.includes("/create")}
-              >
-                Add new
-              </Nav.Link>
-              <Collapse in={open}>
-                <Nav className="flex-column ms-3">
-                  <Nav.Link href={`/create/${Entry.task}`}>
-                    {Entry.task}
-                  </Nav.Link>
-                  <Nav.Link href={`/create/${Entry.heap}`}>
-                    {Entry.heap}
-                  </Nav.Link>
-                  <Nav.Link href={`/create/${Entry.habit}`}>
-                    {Entry.habit}
-                  </Nav.Link>
-                </Nav>
-              </Collapse>
-            </Nav.Item>
+            <Nav.Link
+              href="/create"
+              active={pathname === "/create"}
+              className="text-nowrap pe-5"
+            >
+              Add new
+            </Nav.Link>
             <Nav.Link href="/todo" active={pathname === "/todo"}>
               ToDo
             </Nav.Link>

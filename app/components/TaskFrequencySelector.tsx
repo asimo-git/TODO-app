@@ -1,75 +1,70 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import { decodeFrequency } from "../utils/helpers";
-import { DaysOfWeek } from "../utils/constatnts";
+import { daysOfWeek, Frequency } from "../utils/constatnts";
 
 export default function TaskFrequencySelector({
   value,
   onChange,
 }: {
-  value: string | undefined;
+  value: string;
   onChange: (value: string) => void;
 }) {
-  const [frequency, setFrequency] = useState<string | undefined>(undefined);
+  const [frequency, setFrequency] = useState<Frequency>("daily");
   const [intervalDays, setIntervalDays] = useState("");
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [daysPerWeek, setDaysPerWeek] = useState("");
 
   useEffect(() => {
     const FrequencyValue = decodeFrequency(value);
     setFrequency(FrequencyValue);
     if (FrequencyValue === "interval") {
-      setIntervalDays(value || "");
+      setIntervalDays(value.split("-")[1] || "");
     } else if (FrequencyValue === "weekly" && value) {
-      const daysOfWeeks = value.split(",").map((day) => +day);
+      const daysOfWeeks = value.split(",");
       setSelectedDays(daysOfWeeks);
+    } else if (FrequencyValue === "counter" && value) {
+      const counter = value.split("-")[1] || "";
+      setDaysPerWeek(counter);
     }
-  }, []);
+  }, [value]);
 
   useEffect(() => {
     if (frequency === "daily") {
       onChange(frequency);
     } else if (frequency === "interval" && intervalDays) {
-      onChange(intervalDays);
+      onChange(`interval-${intervalDays}`);
     } else if (frequency === "weekly" && selectedDays.length > 0) {
       onChange(selectedDays.join(","));
+    } else if (frequency === "counter" && daysPerWeek) {
+      onChange(`daysPerWeek-${daysPerWeek}`);
     }
   }, [frequency, intervalDays, selectedDays]);
 
-  const handleCheckboxChange = (day: number) => {
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
 
-  const daysOfWeekOptions = useMemo(
-    () =>
-      Object.keys(DaysOfWeek)
-        .filter((key) => isNaN(Number(key)))
-        .map((day, index) => (
-          <Form.Check
-            key={day}
-            type="checkbox"
-            label={day}
-            checked={selectedDays.includes(index)}
-            onChange={() => handleCheckboxChange(index)}
-            className="ms-3"
-          />
-        )),
-    [selectedDays]
-  );
+    setSelectedDays((prevSelectedDays) => {
+      if (prevSelectedDays.includes(selectedValue)) {
+        return prevSelectedDays.filter((day) => day !== selectedValue);
+      } else {
+        return [...prevSelectedDays, selectedValue];
+      }
+    });
+  };
 
   return (
     <Form.Group controlId="taskFrequency" className="mb-3">
       <Form.Label>Repetition Frequency</Form.Label>
       <Form.Select
         value={frequency}
-        onChange={(e) => setFrequency(e.target.value)}
+        onChange={(e) => setFrequency(e.target.value as Frequency)}
         className="d-inline w-25 mx-2"
       >
-        <option value="none">None</option>
         <option value="daily">Daily</option>
         <option value="interval">Interval in days ➡</option>
         <option value="weekly">By days of the week ➡</option>
+        <option value="counter">Days per week ➡</option>
       </Form.Select>
 
       {frequency === "interval" && (
@@ -85,6 +80,7 @@ export default function TaskFrequencySelector({
               setIntervalDays(onlyDigits);
             }}
             style={{ maxWidth: "100px" }}
+            required
           />
         </Form.Group>
       )}
@@ -92,7 +88,39 @@ export default function TaskFrequencySelector({
       {frequency === "weekly" && (
         <Form.Group controlId="daysOfWeek" className="mt-3">
           <Form.Label>Select days of the week:</Form.Label>
-          <div className="d-flex flex-wrap">{daysOfWeekOptions}</div>
+          <select
+            multiple
+            value={selectedDays}
+            onChange={handleSelectChange}
+            required
+            size={daysOfWeek.length}
+            className="form-select"
+            style={{ overflowY: "auto" }}
+          >
+            {daysOfWeek.map((day, index) => (
+              <option key={day} value={index}>
+                {day}
+              </option>
+            ))}
+          </select>
+        </Form.Group>
+      )}
+
+      {frequency === "counter" && (
+        <Form.Group controlId="counterDays" className="mt-3">
+          <Form.Label>Enter the number of days per week:</Form.Label>
+          <Form.Control
+            type="text"
+            inputMode="numeric"
+            min="1"
+            value={daysPerWeek}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "");
+              setDaysPerWeek(onlyDigits);
+            }}
+            style={{ maxWidth: "100px" }}
+            required
+          />
         </Form.Group>
       )}
     </Form.Group>
