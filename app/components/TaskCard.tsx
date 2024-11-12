@@ -153,7 +153,8 @@ export default function TaskCard({
           ))}
 
         {data.repetition && (
-          <>
+          <div className="d-flex flex-wrap gap-2 justify-content-between">
+          <div>
             Repetition:{" "}
             {isEditing ? (
               <input
@@ -173,7 +174,11 @@ export default function TaskCard({
             ) : (
               data.repetition
             )}
-          </>
+          </div>
+          <div>
+            Completed: {data.completedCounter?.length || 0}
+          </div>
+          </div>
         )}
       </CardBody>
 

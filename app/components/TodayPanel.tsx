@@ -124,7 +124,7 @@ export default function TodayPanel() {
     <ProtectedRoute>
       <Card
         style={{ width: "fit-content" }}
-        className="mb-5 mx-auto d-flex flex-column align-items-center px-5 shadow"
+        className="mb-3 mx-auto d-flex flex-column align-items-center px-5 shadow"
       >
         <CardBody>
           <h2 className="display-2 mb-5">Today:</h2>
