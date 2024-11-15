@@ -1,21 +1,21 @@
-import { Alert, Card, CardBody, CardFooter, CardTitle } from "react-bootstrap";
-import { SavedTask } from "../utils/interfaces";
-import { Entry, TaskType } from "../utils/constatnts";
+import Image from "next/image";
 import { useContext, useMemo, useState } from "react";
-import { AuthContext } from "../utils/context";
+import { Alert, Card, CardBody, CardFooter, CardTitle } from "react-bootstrap";
 import {
   completeTask,
   deleteTask,
   undoTask,
   updateTask,
-} from "../services/firebase";
-import ActionButtonGroup from "./ActionButtonGroup";
+} from "../../services/firebase";
+import { Entry, TaskType } from "../../utils/constatnts";
+import { AuthContext } from "../../utils/context";
 import {
   decodeFrequencyToText,
   getPriorityFontSize,
   getTypeColor,
-} from "../utils/helpers";
-import Image from "next/image";
+} from "../../utils/helpers";
+import { SavedTask } from "../../utils/interfaces";
+import ActionButtonGroup from "./ActionButtonGroup";
 import TaskFrequencySelector from "./TaskFrequencySelector";
 
 export default function TaskCard({
@@ -154,30 +154,28 @@ export default function TaskCard({
 
         {data.repetition && (
           <div className="d-flex flex-wrap gap-2 justify-content-between">
-          <div>
-            Repetition:{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                inputMode="numeric"
-                name="repetition"
-                value={editedData.repetition}
-                onChange={(e) => {
-                  const onlyDigits = e.target.value.replace(/\D/g, "");
-                  setEditedData((prev) => ({
-                    ...prev,
-                    repetition: onlyDigits,
-                  }));
-                }}
-                className="form-control d-inline w-25"
-              />
-            ) : (
-              data.repetition
-            )}
-          </div>
-          <div>
-            Completed: {data.completedCounter?.length || 0}
-          </div>
+            <div>
+              Repetition:{" "}
+              {isEditing ? (
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  name="repetition"
+                  value={editedData.repetition}
+                  onChange={(e) => {
+                    const onlyDigits = e.target.value.replace(/\D/g, "");
+                    setEditedData((prev) => ({
+                      ...prev,
+                      repetition: onlyDigits,
+                    }));
+                  }}
+                  className="form-control d-inline w-25"
+                />
+              ) : (
+                data.repetition
+              )}
+            </div>
+            <div>Completed: {data.completedCounter?.length || 0}</div>
           </div>
         )}
       </CardBody>

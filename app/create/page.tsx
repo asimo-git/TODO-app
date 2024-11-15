@@ -1,12 +1,12 @@
 "use client";
 
-import { useContext, useState } from "react";
-import { Button, Col, Form, Row, Toast, ToastContainer } from "react-bootstrap";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { saveNewTask } from "@/app/services/firebase";
 import { Entry, Priority } from "@/app/utils/constatnts";
 import { AuthContext } from "@/app/utils/context";
-import { saveNewTask } from "@/app/services/firebase";
-import TaskFrequencySelector from "@/app/components/TaskFrequencySelector";
-import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { useContext, useState } from "react";
+import { Button, Col, Form, Row, Toast, ToastContainer } from "react-bootstrap";
+import TaskFrequencySelector from "../components/TaskPool/TaskFrequencySelector";
 import { Task } from "../utils/interfaces";
 
 export default function NewEntryForm() {

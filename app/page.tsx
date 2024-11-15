@@ -1,8 +1,8 @@
 "use client";
 import { useContext } from "react";
+import { Container, Dropdown, Spinner } from "react-bootstrap";
 import TodayPanel from "./components/TodayPanel";
 import { AuthContext } from "./utils/context";
-import { Container, Dropdown, Spinner } from "react-bootstrap";
 
 export default function Home() {
   const { user, loading } = useContext(AuthContext);
@@ -19,9 +19,6 @@ export default function Home() {
 
   return (
     <div>
-      
-      
-
       {user ? (
         <TodayPanel />
       ) : (
@@ -32,25 +29,34 @@ export default function Home() {
           <a href="/register">Register</a>
         </Container>
       )}
-  
-  <Dropdown className="text-end">
-      <Dropdown.Toggle variant="link" className="p-0 text-end">
-        About the App
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.ItemText>
-          This habit and task tracker is based on a method that divides all tasks into three categories:
-          <ul>
-            <li><b>Tasks</b> - one-time actions scheduled for a specific date</li>
-            <li><b>Habits</b> - recurring actions with a set frequency</li>
-            <li><b>Heaps</b> - actions that need to be completed a specific number of times without being tied to a specific date or interval</li>
-          </ul>
-          The priority of tasks in the list is determined by font size.<br />
-          May discipline be with you!
-        </Dropdown.ItemText>
-      </Dropdown.Menu>
-    </Dropdown>
 
+      <Dropdown className="text-start">
+        <Dropdown.Toggle variant="text" className="p-0 text-start">
+          About the App
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Dropdown.ItemText>
+            This habit and task tracker is based on a method that divides all
+            tasks into three categories:
+            <ul>
+              <li>
+                <b>Tasks</b> - one-time actions scheduled for a specific date
+              </li>
+              <li>
+                <b>Habits</b> - recurring actions with a set frequency
+              </li>
+              <li>
+                <b>Heaps</b> - actions that need to be completed a specific
+                number of times without being tied to a specific date or
+                interval
+              </li>
+            </ul>
+            The priority of tasks in the list is determined by font size.
+            <br />
+            May discipline be with you!
+          </Dropdown.ItemText>
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 }

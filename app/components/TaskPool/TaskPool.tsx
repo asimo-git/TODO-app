@@ -1,13 +1,13 @@
 "use client";
 
-import { Container } from "react-bootstrap";
-import { Entry, TaskType } from "../utils/constatnts";
-import { SavedTask } from "../utils/interfaces";
-import TaskCard from "./TaskCard";
 import { useContext, useEffect, useState } from "react";
-import { getTasksFromFireStore } from "../services/firebase";
-import { AuthContext } from "../utils/context";
-import ProtectedRoute from "./ProtectedRoute";
+import { Container } from "react-bootstrap";
+import { getTasksFromFireStore } from "../../services/firebase";
+import { Entry, TaskType } from "../../utils/constatnts";
+import { AuthContext } from "../../utils/context";
+import { SavedTask } from "../../utils/interfaces";
+import ProtectedRoute from "../ProtectedRoute";
+import TaskCard from "./TaskCard";
 
 export default function TasksPool({ pageType }: { pageType: TaskType }) {
   const { user } = useContext(AuthContext);

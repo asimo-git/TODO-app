@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { Card, CardBody, Form, FormCheck } from "react-bootstrap";
-import { AuthContext } from "../utils/context";
 import {
   completeTask,
   getTodayTasks,
@@ -10,9 +10,10 @@ import {
   undoTask,
 } from "../services/firebase";
 import { Entry } from "../utils/constatnts";
+import { AuthContext } from "../utils/context";
+import { getPriorityFontSize } from "../utils/helpers";
 import { SavedTask } from "../utils/interfaces";
 import ProtectedRoute from "./ProtectedRoute";
-import { getPriorityFontSize } from "../utils/helpers";
 
 export default function TodayPanel() {
   const { user } = useContext(AuthContext);
@@ -124,9 +125,9 @@ export default function TodayPanel() {
     <ProtectedRoute>
       <Card
         style={{ width: "fit-content" }}
-        className="mb-3 mx-auto d-flex flex-column align-items-center px-5 shadow"
+        className="mb-3 d-flex flex-column align-items-center px-5 shadow"
       >
-        <CardBody>
+        <CardBody className="pb-0">
           <h2 className="display-2 mb-5">Today:</h2>
 
           {isEmpty && <div>There are no tasks for today</div>}
@@ -135,6 +136,13 @@ export default function TodayPanel() {
           {renderTaskSection("Habits:", tasksData.habit)}
           {renderTaskSection("Heaps:", tasksData.heap)}
         </CardBody>
+        <Image
+          src="/lotus.svg"
+          alt="lotus"
+          width={50}
+          height={50}
+          className="m-1 opacity-50"
+        />
       </Card>
     </ProtectedRoute>
   );
