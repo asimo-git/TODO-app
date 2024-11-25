@@ -1,10 +1,10 @@
 "use client";
+import { signOut } from "firebase/auth";
+import { usePathname } from "next/navigation";
 import { useContext } from "react";
 import { Nav, Navbar, Offcanvas } from "react-bootstrap";
-import { AuthContext } from "../utils/context";
-import { signOut } from "firebase/auth";
 import { auth } from "../services/firebase";
-import { usePathname } from "next/navigation";
+import { AuthContext } from "../utils/context";
 
 export default function Sidebar() {
   const { user } = useContext(AuthContext);
@@ -42,6 +42,9 @@ export default function Sidebar() {
             </Nav.Link>
             <Nav.Link href="/done" active={pathname === "/done"}>
               Done
+            </Nav.Link>
+            <Nav.Link href="/statistics" active={pathname === "/statistics"}>
+              Statistics
             </Nav.Link>
             {user && <Nav.Link onClick={() => signOut(auth)}>Log out</Nav.Link>}
           </Nav>

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.scss";
+import { AuthProvider } from "./components/AuthProvider";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import { AuthProvider } from "./components/AuthProvider";
+import "./globals.scss";
 
 const geistMono = localFont({
   src: "./fonts/Bellota-BoldItalic.ttf",

@@ -11,27 +11,17 @@ import TaskCard from "./TaskCard";
 
 export default function TasksPool({ pageType }: { pageType: TaskType }) {
   const { user } = useContext(AuthContext);
+  console.log("pool - ", user);
   const [isEmpty, setIsEmpty] = useState(false);
-
-  const [tasksData, setTasksData] = useState<{
-    [key in Entry]: SavedTask[];
-  }>({
-    [Entry.task]: [],
-    [Entry.heap]: [],
-    [Entry.habit]: [],
-  });
+  const [tasksData, setTasksData] = useState<SavedTask[]>([]);
 
   useEffect(() => {
     if (user) {
       const section = pageType === "todo" ? "tasks" : "completed";
       const loadTasks = async () => {
         const loadedTasks = await getTasksFromFireStore(user.uid, section);
-        if (loadedTasks) {
-          setTasksData({
-            [Entry.task]: loadedTasks[Entry.task],
-            [Entry.heap]: loadedTasks[Entry.heap],
-            [Entry.habit]: loadedTasks[Entry.habit],
-          });
+        if (loadedTasks && loadedTasks.length > 0) {
+          setTasksData(loadedTasks);
         } else {
           setIsEmpty(true);
         }
@@ -40,20 +30,18 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
     }
   }, [user, pageType]);
 
-  const removeTask = (taskId: string, type: Entry) => {
-    setTasksData((prevTasksData) => ({
-      ...prevTasksData,
-      [type]: prevTasksData[type].filter((task) => task.id !== taskId),
-    }));
+  const removeTask = (taskId: string) => {
+    setTasksData((prevTasksData) =>
+      prevTasksData.filter((task) => task.id !== taskId)
+    );
   };
 
   const updateTask = (updatedTask: SavedTask) => {
-    setTasksData((prevTasksData) => ({
-      ...prevTasksData,
-      [updatedTask.type]: prevTasksData[updatedTask.type].map((task) =>
+    setTasksData((prevTasksData) =>
+      prevTasksData.map((task) =>
         task.id === updatedTask.id ? updatedTask : task
-      ),
-    }));
+      )
+    );
   };
 
   const renderTaskSection = (title: string, tasks: SavedTask[]) => {
@@ -89,9 +77,18 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
 
   return (
     <ProtectedRoute>
-      {renderTaskSection("Tasks", tasksData[Entry.task])}
-      {renderTaskSection("Heaps", tasksData[Entry.heap])}
-      {renderTaskSection("Habits", tasksData[Entry.habit])}
+      {renderTaskSection(
+        "Tasks",
+        tasksData.filter((task) => task.type === Entry.task)
+      )}
+      {renderTaskSection(
+        "Heaps",
+        tasksData.filter((task) => task.type === Entry.heap)
+      )}
+      {renderTaskSection(
+        "Habits",
+        tasksData.filter((task) => task.type === Entry.habit)
+      )}
     </ProtectedRoute>
   );
 }

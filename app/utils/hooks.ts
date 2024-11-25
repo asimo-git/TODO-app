@@ -3,17 +3,18 @@ import { useEffect, useState } from "react";
 import { auth } from "../services/firebase";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<{ user: User | null; loading: boolean }>({
+    user: null,
+    loading: true,
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+      setState({ user: currentUser, loading: false });
     });
 
     return () => unsubscribe();
   }, []);
 
-  return { user, loading };
+  return state;
 }

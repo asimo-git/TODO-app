@@ -2,6 +2,7 @@
 import { useContext } from "react";
 import { Container, Dropdown, Spinner } from "react-bootstrap";
 import TodayPanel from "./components/TodayPanel";
+
 import { AuthContext } from "./utils/context";
 
 export default function Home() {
