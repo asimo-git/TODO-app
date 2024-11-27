@@ -65,3 +65,9 @@ main {
     font-size: 0.9rem;
   }
 }
+
+.react-calendar__tile--active {
+  background: none !important;
+  color: inherit !important;
+  border: none !important;
+}

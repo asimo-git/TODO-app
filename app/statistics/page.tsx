@@ -1,11 +1,11 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+import { Container, Dropdown } from "react-bootstrap";
 import ProtectedRoute from "../components/ProtectedRoute";
+import CalendarField from "../components/Statistic/CalendarField";
 import { getTasksFromFireStore } from "../services/firebase";
 import { AuthContext } from "../utils/context";
+import { getTypeColor } from "../utils/helpers";
 import { SavedTask } from "../utils/interfaces";
 
 export default function Statistics() {
@@ -15,6 +15,7 @@ export default function Statistics() {
   const [doneTasks, setDoneTasks] = useState<SavedTask[] | null | undefined>(
     null
   );
+  const [selectedTask, setSelectedTask] = useState<SavedTask | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -39,8 +40,8 @@ export default function Statistics() {
     loadTasks();
   }, [user]);
 
-  const handleSelectChange = () => {
-    console.log();
+  const handleSelect = (task: SavedTask) => {
+    setSelectedTask(task);
   };
 
   return (
@@ -54,28 +55,34 @@ export default function Statistics() {
           </Container>
         ) : (
           <>
-            <select
-              value={"select task"}
-              onChange={handleSelectChange}
-              required
-              className="form-select"
-              style={{ maxWidth: "800px" }}
-            >
-              {tasks?.map((task) => (
-                <option key={task.id} value={task.task}>
-                  {task.task}
-                </option>
-              ))}
-              {doneTasks?.map((task) => (
-                <option key={task.id} value={task.task}>
-                  {`\u2713 ${task.task}`}
-                </option>
-              ))}
-            </select>
+            <Dropdown>
+              <Dropdown.Toggle variant="outline-primary" id="task-dropdown">
+                {selectedTask ? selectedTask.task : "Select task"}
+              </Dropdown.Toggle>
 
-            <Calendar
-            // tileClassName={({ date }) => (isDateCompleted(date) ? "completed" : "")}
-            />
+              <Dropdown.Menu>
+                {tasks?.map((task) => (
+                  <Dropdown.Item
+                    key={task.id}
+                    onClick={() => handleSelect(task)}
+                    className={`${getTypeColor(task.type)}`}
+                  >
+                    {task.task}
+                  </Dropdown.Item>
+                ))}
+                {doneTasks?.map((task) => (
+                  <Dropdown.Item
+                    key={task.id}
+                    onClick={() => handleSelect(task)}
+                    className={`${getTypeColor(task.type)}`}
+                  >
+                    {`\u2713 ${task.task}`}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+
+            <CalendarField selectedTask={selectedTask} />
           </>
         )}
       </ProtectedRoute>
