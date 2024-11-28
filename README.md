@@ -6,4 +6,4 @@ This habit and task tracker is based on a method that divides all tasks into thr
 The priority of tasks in the list is determined by font size.
 May discipline be with you!
 
-The online version of the application is available at [todo-6vlm6qmyk-asimo-gits-projects.vercel.app/](https://todo-6vlm6qmyk-asimo-gits-projects.vercel.app/)
+The online version of the application is available at [todo-asimo-app.vercel.app](https://todo-asimo-app.vercel.app/)
