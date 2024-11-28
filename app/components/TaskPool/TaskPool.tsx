@@ -1,37 +1,26 @@
 "use client";
 
-import { Container } from "react-bootstrap";
-import { Entry, TaskType } from "../utils/constatnts";
-import { SavedTask } from "../utils/interfaces";
-import TaskCard from "./TaskCard";
 import { useContext, useEffect, useState } from "react";
-import { getTasksFromFireStore } from "../services/firebase";
-import { AuthContext } from "../utils/context";
-import ProtectedRoute from "./ProtectedRoute";
+import { Container } from "react-bootstrap";
+import { getTasksFromFireStore } from "../../services/firebase";
+import { Entry, TaskType } from "../../utils/constatnts";
+import { AuthContext } from "../../utils/context";
+import { SavedTask } from "../../utils/interfaces";
+import ProtectedRoute from "../ProtectedRoute";
+import TaskCard from "./TaskCard";
 
 export default function TasksPool({ pageType }: { pageType: TaskType }) {
   const { user } = useContext(AuthContext);
   const [isEmpty, setIsEmpty] = useState(false);
-
-  const [tasksData, setTasksData] = useState<{
-    [key in Entry]: SavedTask[];
-  }>({
-    [Entry.task]: [],
-    [Entry.heap]: [],
-    [Entry.habit]: [],
-  });
+  const [tasksData, setTasksData] = useState<SavedTask[]>([]);
 
   useEffect(() => {
     if (user) {
       const section = pageType === "todo" ? "tasks" : "completed";
       const loadTasks = async () => {
         const loadedTasks = await getTasksFromFireStore(user.uid, section);
-        if (loadedTasks) {
-          setTasksData({
-            [Entry.task]: loadedTasks[Entry.task],
-            [Entry.heap]: loadedTasks[Entry.heap],
-            [Entry.habit]: loadedTasks[Entry.habit],
-          });
+        if (loadedTasks && loadedTasks.length > 0) {
+          setTasksData(loadedTasks);
         } else {
           setIsEmpty(true);
         }
@@ -40,20 +29,18 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
     }
   }, [user, pageType]);
 
-  const removeTask = (taskId: string, type: Entry) => {
-    setTasksData((prevTasksData) => ({
-      ...prevTasksData,
-      [type]: prevTasksData[type].filter((task) => task.id !== taskId),
-    }));
+  const removeTask = (taskId: string) => {
+    setTasksData((prevTasksData) =>
+      prevTasksData.filter((task) => task.id !== taskId)
+    );
   };
 
   const updateTask = (updatedTask: SavedTask) => {
-    setTasksData((prevTasksData) => ({
-      ...prevTasksData,
-      [updatedTask.type]: prevTasksData[updatedTask.type].map((task) =>
+    setTasksData((prevTasksData) =>
+      prevTasksData.map((task) =>
         task.id === updatedTask.id ? updatedTask : task
-      ),
-    }));
+      )
+    );
   };
 
   const renderTaskSection = (title: string, tasks: SavedTask[]) => {
@@ -79,9 +66,11 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
     return (
       <ProtectedRoute>
         <Container>
-          {pageType === "todo"
-            ? "Tasks not created yet"
-            : "There are no completed tasks yet"}
+          <h2>
+            {pageType === "todo"
+              ? "Tasks not created yet"
+              : "There are no completed tasks yet"}
+          </h2>
         </Container>
       </ProtectedRoute>
     );
@@ -89,9 +78,18 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
 
   return (
     <ProtectedRoute>
-      {renderTaskSection("Tasks", tasksData[Entry.task])}
-      {renderTaskSection("Heaps", tasksData[Entry.heap])}
-      {renderTaskSection("Habits", tasksData[Entry.habit])}
+      {renderTaskSection(
+        "Tasks",
+        tasksData.filter((task) => task.type === Entry.task)
+      )}
+      {renderTaskSection(
+        "Heaps",
+        tasksData.filter((task) => task.type === Entry.heap)
+      )}
+      {renderTaskSection(
+        "Habits",
+        tasksData.filter((task) => task.type === Entry.habit)
+      )}
     </ProtectedRoute>
   );
 }

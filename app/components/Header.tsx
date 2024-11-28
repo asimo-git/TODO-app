@@ -1,13 +1,23 @@
-import { Container } from "react-bootstrap";
+import { fetchQuote } from "../services/zenquotes";
+import logo from "../../public/buddha-eye.png";
+import Image from "next/image";
 
-export default function Header() {
+export default async function Header() {
+  const quote = await fetchQuote();
+
   return (
     <header>
-      <Container className="d-flex justify-content-between align-items-center">
+      <div className="px-3 d-flex justify-content-between align-items-center flex-wrap">
         <a href="/" className="m-2">
-          <img src="/book-opened.svg" alt="Logo" width="40" height="40" />
+          <Image src={logo} alt="buddha's eyes logo" height={60} priority />
         </a>
-      </Container>
+        <div
+          className="responsive-font mx-2 text-wrap"
+          style={{ whiteSpace: "normal" }}
+        >
+          {quote}
+        </div>
+      </div>
     </header>
   );
 }

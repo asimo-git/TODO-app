@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { TaskType } from "../utils/constatnts";
+import { TaskType } from "../../utils/constatnts";
 
 interface ActionButtonGroupProps {
   isEditing: boolean;
@@ -38,6 +38,7 @@ export default function ActionButtonGroup({
             size="sm"
             className="w-33"
             onClick={onChangeStatus}
+            title={typeTask === "todo" ? "mark as done" : "mark as undone"}
           >
             {typeTask === "todo" ? "\u2713" : "\u21A9"}
           </Button>
@@ -47,6 +48,7 @@ export default function ActionButtonGroup({
             size="sm"
             className="w-33"
             onClick={onUpdateTask}
+            title="edit"
           >
             &#9998;
           </Button>
@@ -56,6 +58,7 @@ export default function ActionButtonGroup({
             size="sm"
             className="w-33"
             onClick={onDeleteTask}
+            title="delete"
           >
             &#128465;
           </Button>

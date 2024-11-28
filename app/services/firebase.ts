@@ -11,12 +11,12 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { SavedTask, Task } from "../utils/interfaces";
 import { Entry, FirestoreSection } from "../utils/constatnts";
 import {
   isTodayMatchingInterval,
   isTodayMatchingWeekDays,
 } from "../utils/helpers";
+import { SavedTask, Task } from "../utils/interfaces";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -63,17 +63,12 @@ export async function getTasksFromFireStore(
       return null;
     }
 
-    const tasks: Record<Entry, SavedTask[]> = {
-      [Entry.task]: [],
-      [Entry.heap]: [],
-      [Entry.habit]: [],
-    };
+    const tasks: SavedTask[] = [];
 
     tasksSnapshot.forEach((doc) => {
       const task = doc.data() as SavedTask;
       task.id = doc.id;
-
-      tasks[task.type as Entry].push(task);
+      tasks.push(task);
     });
 
     return tasks;
@@ -152,51 +147,69 @@ export async function getTodayTasks(uid: string) {
     getTasksFromFireStore(uid, "tasks"),
     getTasksFromFireStore(uid, "completed"),
   ]);
-  if (!tasks && !doneTasks) return null;
+
+  if (!tasks?.length && !doneTasks?.length) return null;
 
   const currentStrDate = new Date().toISOString().split("T")[0];
   const currentDate = new Date();
 
-  if (tasks) {
-    tasks[Entry.task] = tasks[Entry.task].filter(
-      (task) => task.date === currentStrDate
-    );
+  const todayTasks = [
+    ...(tasks?.filter(
+      (task) => task.type === Entry.task && task.date === currentStrDate
+    ) || []),
+    ...(doneTasks?.filter(
+      (task) => task.type === Entry.task && task.date === currentStrDate
+    ) || []),
+  ];
 
-    tasks[Entry.heap] = tasks[Entry.heap].filter(
-      (task) => new Date(task.date) >= currentDate
-    );
+  const upcomingHeaps = [
+    ...(tasks?.filter(
+      (task) => task.type === Entry.heap && new Date(task.date) >= currentDate
+    ) || []),
+    ...(doneTasks?.filter(
+      (task) =>
+        task.type === Entry.heap && task.completedDate === currentStrDate
+    ) || []),
+  ];
 
-    if (doneTasks) {
-      tasks[Entry.task] = [
-        ...tasks[Entry.task],
-        ...doneTasks[Entry.task].filter((task) => task.date === currentStrDate),
-      ];
-
-      tasks[Entry.heap] = [
-        ...tasks[Entry.heap],
-        ...doneTasks[Entry.heap].filter(
-          (task) => task.completedDate === currentStrDate
-        ),
-      ];
-    }
-
-    tasks[Entry.habit] = tasks[Entry.habit].filter((task) => {
-      if (new Date(task.date) <= currentDate && task.frequency) {
+  const habitTasks = [
+    ...(tasks?.filter((task) => {
+      if (
+        task.type === Entry.habit &&
+        new Date(task.date) <= currentDate &&
+        task.frequency
+      ) {
         if (task.frequency === "daily") return true;
 
-        if (!isNaN(+task.frequency!)) {
+        if (task.frequency.startsWith("interval")) {
           return (
             task.date === currentStrDate ||
-            isTodayMatchingInterval(task.date, +task.frequency)
+            isTodayMatchingInterval(task.date, +task.frequency.split("-")[1])
+          );
+        }
+
+        if (task.frequency.startsWith("daysPerWeek")) {
+          const targetCounter = +task.frequency.split("-")[1];
+          return (
+            !task.completedCounter ||
+            task.completedCounter.length < targetCounter
           );
         }
 
         return isTodayMatchingWeekDays(task.frequency.split(","));
       }
-    });
-  }
+    }) || []),
+    ...(doneTasks?.filter(
+      (task) =>
+        task.type === Entry.habit && task.completedDate === currentStrDate
+    ) || []),
+  ];
 
-  return tasks;
+  return {
+    [Entry.task]: todayTasks,
+    [Entry.heap]: upcomingHeaps,
+    [Entry.habit]: habitTasks,
+  };
 }
 
 export async function handleCheckChange({

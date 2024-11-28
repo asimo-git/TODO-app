@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode } from "react";
-import { useAuth } from "../utils/hooks";
 import { AuthContext } from "../utils/context";
+import { useAuth } from "../utils/hooks";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();

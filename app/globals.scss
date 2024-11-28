@@ -50,9 +50,24 @@ main {
   border-left: 4px solid #533221;
   box-shadow: inset 8px 0 10px -6px #533221;
   padding: 1rem;
-  background: url("/bg.svg") left top / 50px auto repeat-y;
+  background: url("/bgr.png") right bottom / 80% auto no-repeat;
 }
 
 .active {
   text-decoration: underline;
+}
+
+.responsive-font {
+  flex-basis: 380px;
+  flex-grow: 1;
+  text-align: right;
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+.react-calendar__tile--active {
+  background: none !important;
+  color: inherit !important;
+  border: none !important;
 }
