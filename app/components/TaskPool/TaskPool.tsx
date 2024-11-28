@@ -11,7 +11,6 @@ import TaskCard from "./TaskCard";
 
 export default function TasksPool({ pageType }: { pageType: TaskType }) {
   const { user } = useContext(AuthContext);
-  console.log("pool - ", user);
   const [isEmpty, setIsEmpty] = useState(false);
   const [tasksData, setTasksData] = useState<SavedTask[]>([]);
 
@@ -67,9 +66,11 @@ export default function TasksPool({ pageType }: { pageType: TaskType }) {
     return (
       <ProtectedRoute>
         <Container>
-          {pageType === "todo"
-            ? "Tasks not created yet"
-            : "There are no completed tasks yet"}
+          <h2>
+            {pageType === "todo"
+              ? "Tasks not created yet"
+              : "There are no completed tasks yet"}
+          </h2>
         </Container>
       </ProtectedRoute>
     );

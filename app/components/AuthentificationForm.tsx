@@ -1,15 +1,16 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
-import { Alert, Button, Container, Form } from "react-bootstrap";
-import { auth } from "../services/firebase";
+import { FirebaseError } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FirebaseError } from "firebase/app";
-import { AuthContext } from "../utils/context";
+import { useContext, useEffect, useState } from "react";
+import { Alert, Button, Container, Form } from "react-bootstrap";
+import { auth } from "../services/firebase";
 import { FirebaseErrors } from "../utils/constatnts";
+import { AuthContext } from "../utils/context";
 
 export default function AuthentificationForm({
   type,
@@ -83,17 +84,26 @@ export default function AuthentificationForm({
             className="position-absolute top-0 end-0 me-1"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? "🙈" : "👁️"}
+            <Image
+              src={showPassword ? "/eye-off.svg" : "/eye-show.svg"}
+              alt={showPassword ? "hide password" : "show password"}
+              width={30}
+              height={30}
+            />
           </Button>
+          {type === "register" && (
+            <div className="fs-6">
+              *The password should be at least six characters long. The rest is
+              up to you.
+            </div>
+          )}
         </Form.Group>
 
         <Button variant="primary" type="submit">
           Submit
         </Button>
-        <a href={type === "login" ? "/register" : "/login"}>
-          <Button variant="primary" type="button" className="ms-2">
-            {type === "login" ? "Register" : "Log in"}
-          </Button>
+        <a href={type === "login" ? "/register" : "/login"} className="ms-3">
+          {type === "login" ? "Register" : "Log in"}
         </a>
       </Form>
     </Container>

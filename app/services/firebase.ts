@@ -32,37 +32,6 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 const db = getFirestore(app);
 
-// let state: AuthState = { user: null, loading: true };
-// const subscribers: Array<(newState: AuthState) => void> = [];
-// let isInitialized = false;
-// console.log("iiiiiiiii", isInitialized);
-
-// export function initializeAuthListener() {
-//   if (isInitialized) return;
-//   isInitialized = true;
-//   console.log(" initializeAuthListener");
-//   onAuthStateChanged(auth, (currentUser) => {
-//     state = { user: currentUser, loading: false };
-//     subscribers.forEach((callback) => callback(state));
-//   });
-// }
-
-// export function subscribeAuthChange(callback: (newState: AuthState) => void) {
-//   subscribers.push(callback);
-//   callback(state);
-
-//   return () => {
-//     const index = subscribers.indexOf(callback);
-//     if (index > -1) {
-//       subscribers.splice(index, 1);
-//     }
-//   };
-// }
-
-// export function getAuthState() {
-//   return state;
-// }
-
 export async function saveNewTask({
   uid,
   data,
@@ -80,38 +49,6 @@ export async function saveNewTask({
     await addDoc(collection(db, path), data);
   }
 }
-
-// export async function getTasksFromFireStore(
-//   uid: string = "",
-//   section: FirestoreSection
-// ) {
-//   try {
-//     const tasksSnapshot: QuerySnapshot = await getDocs(
-//       collection(db, `users/${uid}/${section}`)
-//     );
-
-//     if (tasksSnapshot.empty) {
-//       return null;
-//     }
-
-//     const tasks: Record<Entry, SavedTask[]> = {
-//       [Entry.task]: [],
-//       [Entry.heap]: [],
-//       [Entry.habit]: [],
-//     };
-
-//     tasksSnapshot.forEach((doc) => {
-//       const task = doc.data() as SavedTask;
-//       task.id = doc.id;
-
-//       tasks[task.type as Entry].push(task);
-//     });
-
-//     return tasks;
-//   } catch (error) {
-//     console.error("Error while getting tasks:", error);
-//   }
-// }
 
 export async function getTasksFromFireStore(
   uid: string = "",
@@ -204,65 +141,6 @@ export async function undoTask({
   });
   await deleteTask({ uid, taskId: data.id, typeTask: "done" });
 }
-
-// export async function getTodayTasks(uid: string) {
-//   const [tasks, doneTasks] = await Promise.all([
-//     getTasksFromFireStore(uid, "tasks"),
-//     getTasksFromFireStore(uid, "completed"),
-//   ]);
-//   if (!tasks && !doneTasks) return null;
-
-//   const currentStrDate = new Date().toISOString().split("T")[0];
-//   const currentDate = new Date();
-
-//   if (tasks) {
-//     tasks[Entry.task] = tasks[Entry.task].filter(
-//       (task) => task.date === currentStrDate
-//     );
-
-//     tasks[Entry.heap] = tasks[Entry.heap].filter(
-//       (task) => new Date(task.date) >= currentDate
-//     );
-
-//     if (doneTasks) {
-//       tasks[Entry.task] = [
-//         ...tasks[Entry.task],
-//         ...doneTasks[Entry.task].filter((task) => task.date === currentStrDate),
-//       ];
-
-//       tasks[Entry.heap] = [
-//         ...tasks[Entry.heap],
-//         ...doneTasks[Entry.heap].filter(
-//           (task) => task.completedDate === currentStrDate
-//         ),
-//       ];
-//     }
-
-//     tasks[Entry.habit] = tasks[Entry.habit].filter((task) => {
-//       if (new Date(task.date) <= currentDate && task.frequency) {
-//         if (task.frequency === "daily") return true;
-
-//         if (task.frequency.startsWith("interval")) {
-//           return (
-//             task.date === currentStrDate ||
-//             isTodayMatchingInterval(task.date, +task.frequency.split("-")[1])
-//           );
-//         }
-
-//         if (task.frequency.startsWith("daysPerWeek")) {
-//           const targetCounter = task.frequency.split("-")[1];
-//           return (
-//             !task.completedCounter || +task.completedCounter < +targetCounter
-//           );
-//         }
-
-//         return isTodayMatchingWeekDays(task.frequency.split(","));
-//       }
-//     });
-//   }
-
-//   return tasks;
-// }
 
 export async function getTodayTasks(uid: string) {
   const [tasks, doneTasks] = await Promise.all([

@@ -27,7 +27,6 @@ export default function Statistics() {
 
       setTasks(tasks);
       setDoneTasks(doneTasks);
-      console.log(user);
 
       if (
         (!tasks || tasks.length === 0) &&

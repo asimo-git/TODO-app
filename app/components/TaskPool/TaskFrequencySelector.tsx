@@ -18,6 +18,7 @@ export default function TaskFrequencySelector({
   useEffect(() => {
     const FrequencyValue = decodeFrequency(value);
     setFrequency(FrequencyValue);
+
     if (FrequencyValue === "interval") {
       setIntervalDays(value.split("-")[1] || "");
     } else if (FrequencyValue === "weekly" && value) {
@@ -27,19 +28,24 @@ export default function TaskFrequencySelector({
       const counter = value.split("-")[1] || "";
       setDaysPerWeek(counter);
     }
-  }, [value]);
+  }, []);
 
   useEffect(() => {
+    let newValue;
     if (frequency === "daily") {
-      onChange(frequency);
+      newValue = frequency;
     } else if (frequency === "interval" && intervalDays) {
-      onChange(`interval-${intervalDays}`);
+      newValue = `interval-${intervalDays}`;
     } else if (frequency === "weekly" && selectedDays.length > 0) {
-      onChange(selectedDays.join(","));
+      newValue = selectedDays.join(",");
     } else if (frequency === "counter" && daysPerWeek) {
-      onChange(`daysPerWeek-${daysPerWeek}`);
+      newValue = `daysPerWeek-${daysPerWeek}`;
     }
-  }, [frequency, intervalDays, selectedDays]);
+
+    if (newValue && newValue !== value) {
+      onChange(newValue);
+    }
+  }, [frequency, intervalDays, selectedDays, daysPerWeek, onChange, value]);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;

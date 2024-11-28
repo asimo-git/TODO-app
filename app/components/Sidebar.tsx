@@ -11,7 +11,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <Navbar expand="sm" className="position-static align-items-start">
+    <Navbar
+      expand="sm"
+      className={`position-static align-items-start ${
+        !user ? "opacity-50" : ""
+      }`}
+      style={!user ? { pointerEvents: "none" } : {}}
+    >
       <Navbar.Toggle
         aria-controls="offcanvasNavbar"
         className="position-absolute bg-primary d-sm-none"
@@ -46,7 +52,7 @@ export default function Sidebar() {
             <Nav.Link href="/statistics" active={pathname === "/statistics"}>
               Statistics
             </Nav.Link>
-            {user && <Nav.Link onClick={() => signOut(auth)}>Log out</Nav.Link>}
+            <Nav.Link onClick={() => signOut(auth)}>Log out</Nav.Link>
           </Nav>
         </Offcanvas.Body>
       </Navbar.Offcanvas>

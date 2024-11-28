@@ -13,7 +13,7 @@ export async function fetchQuote(): Promise<string> {
     const data: Quote[] = await response.json();
     return data[0]["q"];
   } catch (error) {
-    console.error("Ошибка при получении цитаты:", error);
+    console.error("Error getting quote:", error);
     return "If you can dream it, you can do it";
   }
 }

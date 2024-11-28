@@ -30,14 +30,11 @@ export default function NewEntryForm() {
         task,
         priority,
         date,
-        // frequency,
-        // repetition,
         type,
       };
       if (data.type === Entry.habit) data.frequency = frequency;
       if (repetition) data.repetition = repetition;
 
-      // const filteredData = JSON.parse(JSON.stringify(data));
       try {
         await saveNewTask({
           uid: user?.uid,
@@ -48,7 +45,6 @@ export default function NewEntryForm() {
         setDate("");
         setFrequency("daily");
         setRepetition("");
-        console.log(data);
       } catch {
         setIsSuccessSaveStatus(false);
       }

@@ -96,7 +96,7 @@ export default function TodayPanel() {
         await handleCheckChange({ uid: user!.uid, task, checked });
       }
     } catch (error) {
-      console.error("Ошибка при обновлении задачи:", error);
+      console.error("Error updating task:", error);
     }
   };
 
@@ -128,7 +128,7 @@ export default function TodayPanel() {
         className="mb-3 d-flex flex-column align-items-center px-5 shadow"
       >
         <CardBody className="pb-0">
-          <h2 className="display-2 mb-5">Today:</h2>
+          <h2 className="display-2 mb-5 text-center">Today:</h2>
 
           {isEmpty && <div>There are no tasks for today</div>}
 
@@ -141,7 +141,7 @@ export default function TodayPanel() {
           alt="lotus"
           width={50}
           height={50}
-          className="m-1 opacity-50"
+          className="m-3 opacity-50"
         />
       </Card>
     </ProtectedRoute>
